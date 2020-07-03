@@ -1,0 +1,37 @@
+---
+title: "preminilary graphs"
+author: "Pierre Desvallons"
+date: "7/3/2020"
+output:
+  html_document: default
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r echo FALSE}
+expoData<-function(filename="jan 19 2018.csv")
+  {
+    data <- read.csv(filename, header= T);
+    CO2 <- data$CO2[!is.na(data$CO2)]
+    u <- data$u[!is.na(data$u)] 
+    v <- data$v[!is.na(data$v)] 
+    w <- data$u[!is.na(data$u)] 
+    airtemp <- data$airtemp[!is.na(data$airtemp)] 
+    n = length(CO2)
+    
+    t <-(seq(0,86400, length.out=n))/3600
+    matplot(t,  cbind(u,v,w), ylab = "wind", xlab="time(hours)", type="s",
+            col=c("red","blue","green"))
+    axis(1, at = seq(from=0, to=24, by= 4))
+    legend("topright", c("u","v","w"), col=c("red","blue","green"), bg="gray93", lwd=1)
+    
+    plot(t, CO2, ylab = "umol CO2 umol-1", xlab="time(hours))",type="s")
+    axis(1, at = seq(from=0, to=24, by= 4))
+    
+    plot(t, airtemp, ylab = "Temperature (C)", xlab="time(hours))",type="s")
+    axis(1, at = seq(from=0, to=24, by= 4))
+  }
+expoData()
+```
