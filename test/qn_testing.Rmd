@@ -14,7 +14,7 @@ options(shiny.maxRequestSize=50*1024^2)
 
 
 ## Load data  
-```{r load_files, echo = FALSE}
+```{r load_files, echo = FALSE, eval = FALSE}
 fileInput("rawdata", "Choose CSV File", multiple = T, 
           accept = c("text/csv","text/comma-separated-values,text/plain",".csv"))
 radioButtons("sep", "Separator",
@@ -37,6 +37,7 @@ data <- reactive({
 #)
 
 ```
+
 ```{r pairplots, eval = F, echo = FALSE}
 pair_plots <- function(dataset){
   shinyApp(
@@ -61,5 +62,8 @@ pair_plots <- function(dataset){
 pair_plots(dataset = )
 
 
+```
+```{r}
+shinyAppDir("../01_raw_data/")
 ```
 
