@@ -13,7 +13,7 @@ options(shiny.maxRequestSize=50*1024^2)
 ```
 
 
-## Load data  
+
 ```{r load_files, echo = FALSE, eval = FALSE}
 fileInput("rawdata", "Choose CSV File", multiple = T, 
           accept = c("text/csv","text/comma-separated-values,text/plain",".csv"))
@@ -28,8 +28,8 @@ data <- reactive({
 
 ```
 
-### Variable pair plots  
-```{r}
+ 
+```{r, echo = FALSE}
 #print(data())
 #fluidRow(
 #  selectInput("xcol", label = "Variable on x-axis", names(data())),
@@ -63,7 +63,7 @@ pair_plots(dataset = )
 
 
 ```
-```{r}
+```{r echo=F}
 shinyAppDir("../01_raw_data/")
 ```
 

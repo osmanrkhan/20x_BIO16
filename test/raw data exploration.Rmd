@@ -9,58 +9,70 @@ runtime: shiny
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(plotly)
 ```
 
 To begin please select the file you which to work with
 ```{r file_selection, echo=FALSE}
-
-inputPanel(selectInput("season", h3("Select season"), 
-              choices = list("Summer", "Winter"), selected = "Summer"))
-conditionalPanel(
-  condition = "input.season === Summer",
-  selectInput("file", h3("Select date"), 
-              choices = list("june 5 2018", "june 6 2018"), 
-              selected = "june 5 2018")
+if(interactive()){
+  ui <- fluidPage(
+                inputPanel(selectInput("season", h3("Select season"),
+                                       choices = list("summer", "winter"), selected = 1)),
+                inputPanel(
+                  selectInput("file", h3("Select date"), 
+                              choices = list("june 5 2018" =  "june_5_2018", "june 6 2018"="june_6_2018"), 
+                              selected = 1)
+                  )
   )
-conditionalPanel(
-  condition = "input.season === Winter",
-  selectInput("file", h3("Select date"), 
-              choices = list("jan 19 2018" , "jan 20 2018"), 
-              selected = "jan 19 2018")
-  )
-           
-
-#path <- paste("../data/raw_data/Silas Little Eddy Covariance Data/", 
-            #  input$season, "2018 Datasets/raw sonic files/", input$file, sep="")
-
-
-renderText(print(path))
+  
+  server <- function(input, output, session) {
+    observe({
+      if(grepl(input$season, "winter")){
+        updateSelectInput(session, inputId = "file",
+                          choices = list("jan 19 2018" =  "jan_19_2018", "jan 20 2018"="jan_20_2018"), 
+                          selected = 1)
+        }
+      })
+  
+    path <- reactive({
+      paste("../data/processed_data/silas_little_", 
+            input$season, "_", input$file, ".rds", sep="")
+      })
+    renderText(path())
+    dta <- reactive({
+      readRDS(path())
+      });
+    renderTable(head(dta()))
+  }
+  shinyApp(ui, server)
+}
 ```
 
 ## Histogram
 
 ```{r histogram, echo=FALSE}
-#path <- "../data/raw_data/Silas Little Eddy Covariance Data/Winter 2018 Datasets/raw sonic files/"
-filename <- "../data/raw_data/Silas Little Eddy Covariance Data/Winter 2018 Datasets/raw sonic files/jan 19 2018.csv"
-#filename <- paste(path, filename, collapse = " ")
-dta <- read.csv(filename, header= T);
+require(plotly)
+
+
 inputPanel(
   selectInput("histogram", h3("Select box"), 
               choices = list("CO2", "u" , "v" , "w",
-                              "airtemp"),
+                              "airtemp", "H2O"),
                selected = 1),
              
   sliderInput("bins", h3("number of bins"),
                min = 0, max = 100, value = 50)
 )
       
-renderPlot({
+renderPlotly({
  switch(input$histogram,
-        "CO2" = hist(dta$CO2, breaks = input$bins + 1,col = "#75AADB", border = "white"),
-         "u" = hist(dta$u, breaks = input$bins + 1,col = "#75AADB", border = "white"),
-         "v" = hist(dta$v, breaks = input$bins + 1,col = "#75AADB", border = "white"),
-         "w" = hist(dta$w, breaks = input$bins + 1,col = "#75AADB", border = "white"),
-         "airtemp" = hist(dta$airtemp, breaks = input$bins + 1,col = "#75AADB", border = "white"),
+        "CO2" = plot_ly(alpha = 0.6, nbinsx = input$bins) %>% add_histogram(dta()$CO2, name = "CO2", histnorm = "percent")%>% layout(title = "Histogram of CO2", xaxis = list(title = "CO2"),yaxis = list(title = "percent")),
+         "u" = plot_ly(alpha = 0.6, nbinsx = input$bins) %>% add_histogram(dta()$u, name = "horizontal speed", histnorm = "percent")%>% layout(title = "Histogram of horizontal speed", xaxis = list(title = "U"),yaxis = list(title = "percent")),
+         "v" = plot_ly(alpha = 0.6, nbinsx = input$bins) %>% add_histogram(dta()$v, name = "horizontal speed", histnorm = "percent")%>% layout(title = "Histogram of horizontal speed", xaxis = list(title = "V"),yaxis = list(title = "percent")),
+         "w" = plot_ly(alpha = 0.6, nbinsx = input$bins) %>% add_histogram(dta()$w, name = "vertical speed", histnorm = "percent")%>% layout(title = "Histogram of vertical speed", xaxis = list(title = "vertical speed"),yaxis = list(title = "percent")),
+         "airtemp" = plot_ly(alpha = 0.6, nbinsx = input$bins) %>% add_histogram(dta()$airtemp, name = "Temperature", histnorm = "percent")%>% layout(title = "Histogram of air Temperature", xaxis = list(title = "airTemp"),yaxis = list(title = "percent")),
+        "H2O" = plot_ly(alpha = 0.6, nbinsx = input$bins) %>% add_histogram(dta()$H2O, name = "Water", histnorm = "percent")%>% layout(title = "Histogram of H2O", xaxis = list(title = "H2O"),yaxis = list(title = "percent")),
+        
          )
 })
 
@@ -86,8 +98,8 @@ renderPlot({
   var_data = c()
   col_list=c("blue", "red","black")
   for(i in 1:length(input$wind_var)){
-    col_val = c(col_val, col_list[grep(input$wind_var[i], names(dta))])
-    var_data = c(var_data, dta[grep(input$wind_var[i], names(dta))])
+    col_val = c(col_val, col_list[grep(input$wind_var[i], names(dta()))])
+    var_data = c(var_data, dta()[grep(input$wind_var[i], names(dta()))])
   }
   
   t<-seq(0,86400, length = 864001);
@@ -99,13 +111,13 @@ renderPlot({
     lines(t,var_data[[i]], col=col_val[i])
   }
   
-  legend("bottomright", input$wind_var, col=col_val, bg= "gray93")
+  legend("bottomright", input$wind_var,col = col_list, bg= "gray93")
 })
 
 renderPlot({
   par(mfrow=c(1,2),mar=c(4,4,4,1))
-  CO2 <- dta$CO2[!is.na(dta$CO2)]
-  airtemp <- dta$airtemp[!is.na(dta$airtemp)]
+  CO2 <- dta()$CO2[!is.na(dta()$CO2)]
+  airtemp <- dta()$airtemp[!is.na(dta()$airtemp)]
   t<-seq(0,86400, length = 864001);
   plot(t,  CO2, xlab="time(hours)", ylab = "CO2 umol-1", type="s", main = "CO2 vs time")
    plot(t,  airtemp, xlab="time(hours)", ylab = "Temp (C)", type="s", main = "Temp vs time")
