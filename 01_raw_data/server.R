@@ -2,9 +2,11 @@ library(shiny)
 library(tidyverse)
 library(rlang)
 library(readr)
-library(corrr)
+library(forecast)
 library(plotly)
+library(corrr)
 library(zoo)
+
 
 function(input, output,session){
   # Getting the data in 
@@ -75,69 +77,58 @@ function(input, output,session){
              layout(title = "Histogram of H2O", xaxis = list(title = "H2O"),yaxis = list(title = "percent")),
     )
   })
+  
 
-  output$vvt_plt <- renderPlotly({
-    req(data())
-      col_val=c()
-      var_data = c()
-      col_list=c("blue", "red","black")
-      for(i in 1:length(input$vvt_wind)){
-        col_val = c(col_val, col_list[grep(paste("^", input$vvt_wind[i],"$", sep = ""), names(data()))])
-        var_data = c(var_data, data()[grep(paste("^", input$vvt_wind[i],"$", sep = ""), names(data()))])
-      }
-      num_row = length(data()$u)
-      time_divisor <- 1;
-      if(grepl("min", input$vvt_time)){
-        time_divisor <- 60;
-      }
-      else if(grepl("hours", input$vvt_time)){
-        time_divisor <- 3600;
-      }
-      t<-seq(0,86400, length = num_row)/time_divisor
-      
-      if(length(var_data) > 0){
-        var_data[[1]] = var_data[[1]][!is.na(var_data[[1]])]
-        fig <- plot_ly(x = ~t,  y = ~var_data[[1]], type = "scatter", mode = "lines",
-                       color = I(col_list[1]), name = input$vvt_wind[[1]])
-        for(i in min(2, length(var_data)):length(var_data)){
-          if(i > 1) {
-            var_data[[i]] = var_data[[i]][!is.na(var_data[[i]])]
-            fig <- fig %>% add_trace(x = ~t, y = ~var_data[[i]], type = "scatter", mode = "lines",
-                                   color = I(col_list[i]), name = input$vvt_wind[[i]])
-          }
-        
-        }
-        fig <- fig %>% layout(title = "wind versus time",
-                xaxis = list(title = paste("time(", input$vvt_time,")", sep ="")),
-                yaxis = list(title = "Wind"))
-      }
+  t <- reactiveValues(data = NULL)
+  unit <- reactiveValues(data = NULL);
+  
+  observeEvent(input$sec, {
+    t$data <- seq(0,86400, length = length(data()$CO2))
+    unit$data <- "seconds"
   })
   
+  observeEvent(input$min, {
+    t$data <- seq(0,86400, length = length(data()$CO2))/60
+    unit$data <- "minutes"
+  })
+  
+  observeEvent(input$hour, {
+    t$data <- seq(0,86400, length = length(data()$CO2))/3600
+    unit$data <- "hours"
+  })  
+  
   output$vvt_plt_vs_time <- renderPlotly({
-    req(data())
-    num_row = length(data()$CO2)
-    time_divisor <- 1;
-    if(grepl("min", input$v_time)){
-      time_divisor <- 60;
-    }
-    else if(grepl("hours", input$v_time)){
-      time_divisor <- 3600;
-    }
-    t<-seq(0,84400, length = num_row)/time_divisor
-   
     
+    req(data())
+    if (is.null(t$data) || length(t$data) != length(data()$CO2)) return()
+    if (is.null(unit$data)) return()
     switch(input$vvt,
-           "CO2" =  plot_ly(x = ~t,  y = ~data()$CO2, type = "scatter", mode = "lines") %>% 
-             layout(title = "CO2 Vs Time", yaxis = list(title = "CO2"),xaxis = 
-                      list(title = paste("time(", input$v_time,")", sep = ""))),
+           "CO2" =  plot_ly(x = ~t$data,  y = ~data()$CO2, type = "scatter", mode = "lines") %>% 
+             layout(title = as.character(num_row), yaxis = list(title = "CO2"),xaxis = 
+                      list(title = paste("time(", unit$data,")", sep = ""))),
            
-           "airtemp" = plot_ly(x = ~t,  y = ~data()$airtemp, type = "scatter", mode = "lines") %>% 
+           "airtemp" = plot_ly(x = ~t$data,  y = ~data()$airtemp, type = "scatter", mode = "lines") %>% 
              layout(title = "Temperature Vs Time", yaxis = list(title = "Temperature"),xaxis = 
-                      list(title = paste("time(", input$v_time,")", sep = ""))),
+                      list(title = paste("time(", unit$data,")", sep = ""))),
            
-           "H2O" = plot_ly(x = ~t,  y = ~data()$H2O, type = "scatter", mode = "lines") %>% 
+           "H2O" = plot_ly(x = ~t$data,  y = ~data()$H2O, type = "scatter", mode = "lines") %>% 
              layout(title = "H2O Vs Time", yaxis = list(title = "H2O"),xaxis = 
-                      list(title = paste("time(", input$v_time,")", sep = ""))),
+                      list(title = paste("time(", unit$data,")", sep = ""))),
+           
+           "u" = plot_ly(x = ~t$data,  y = ~data()$u, type = "scatter", mode = "lines") %>% 
+             layout(title = "Horizontal Wind Speed (East) Vs Time", 
+                    yaxis = list(title = "Horizontal Wind Speed (East)"),xaxis = 
+                      list(title = paste("time(", unit$data,")", sep = ""))),
+           
+           "v" = plot_ly(x = ~t$data,  y = ~data()$v, type = "scatter", mode = "lines") %>% 
+             layout(title = "Horizontal Wind Speed (North) Vs Time", 
+                    yaxis = list(title = "Horizontal Wind Speed (North)"),xaxis = 
+                      list(title = paste("time(", unit$data,")", sep = ""))),
+           
+           "w" = plot_ly(x = ~t$data,  y = ~data()$w, type = "scatter", mode = "lines") %>% 
+             layout(title = "VerticalWind Speed Vs Time", 
+                    yaxis = list(title = "vertical Wind Speed"),xaxis = 
+                      list(title = paste("time(", unit$data,")", sep = ""))),
     )
   })
   # pair plot 
