@@ -2,7 +2,7 @@
 
 Folder structure  
 
-`data/`: To hold any data needed.   
+`data/`: To hold any data needed. `processed_data/` housed processed data in `.rds` format.     
 `test/`: Staging ground for testing different Rmarkdown files  
 `R/`: Any Rscript that is needed  
 `docs/`: Any documents needed such as tutorials, data annotations, etc.  

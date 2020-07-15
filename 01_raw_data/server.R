@@ -2,7 +2,8 @@ library(shiny)
 library(tidyverse)
 library(rlang)
 library(readr)
-library(corrr)
+library(forecast)
+library(plotly)
 
 function(input, output){
   # Getting the data in 
@@ -48,9 +49,6 @@ function(input, output){
       
       legend("bottomright", input$vvt_wind, col=col_val, bg= "gray93")
   })
-  
-  # pair plot 
-  # TODO: Add functionality to 
   plt <- reactive({ggplot(data(),
                           aes(x = !!sym(input$pairplot_xvar), 
                               y = !!sym(input$pairplot_yvar)))})

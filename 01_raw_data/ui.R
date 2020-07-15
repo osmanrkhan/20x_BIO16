@@ -1,18 +1,7 @@
 library(shiny)
 options(shiny.maxRequestSize=50*1024^2)
 fluidPage(
-  h3("Data Preview"),
-  sidebarLayout(
-    sidebarPanel(
-      fileInput("rawdata", "Choose CSV File", multiple = T, 
-                accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
-      numericInput("n_row", "Number of rows to import", value = 6000, max = 864000,
-                     step = 10)
-    ),
-    mainPanel(
-      tableOutput("preview")
-    )
-  ),
+  #TODO: https://stackoverflow.com/questions/21465411/r-shiny-passing-reactive-to-selectinput-choices
   h3("Alternative file selection process"),
   inputPanel(selectInput("season", h3("Select season"), 
                          choices = list("Summer", "Winter"), selected = "Summer")),
@@ -49,12 +38,18 @@ fluidPage(
   h3("Variable vs Time"),
   sidebarLayout(
     sidebarPanel(
-      checkboxGroupInput("vvt_wind", "Select Variables", 
-                        choices = list( "vertical wind speed" = "u" , "horizontal wind speed1" = "v" , "horizontal wind speed2" ="w"),
-                        selected = "u"),
-      selectInput("vvt_time", "Select Time scale", 
-                  choices = list("1/10th sec" = 1, "sec" = 2, "min" = 3, "hours"= 4),
-                  selected = 1)
+      selectInput("vvt_wind", "Select Variables", 
+                        choices = list( "Vertical Wind Speed" = "w" , 
+                                        "Horizontal Wind Speed (North)" = "v" , 
+                                        "Horizontal Wind Speed (East)" ="u",
+                                        "CO2" = "CO2",
+                                        "Water Vapor" = "H2O",
+                                        "Air Temperature" = "airtemp"),
+                        selected = "w"),
+      h4("Render Time Scale"),
+      actionButton("sec", "Second"),
+      actionButton("min", "Minute"),
+      actionButton("hour", "Hour")
     ),
     mainPanel(
       plotOutput("vvt_plt")
@@ -70,7 +65,10 @@ fluidPage(
                                 "u" = "u", "w" = 'w', "v"="v")),
       selectInput('pairplot_yvar', "Y Axis", 
                   choices = list("CO2"="CO2","H2O"="H2O","Temperature"="airtemp",
-                                 "u" = "u", "w" = 'w', "v"="v"), selected = "airtemp")
+                                 "u" = "u", "w" = 'w', "v"="v"), selected = "airtemp"),
+      actionButton("pairplot_second", "Second"),
+      actionButton("pairplot_minute", "Minute"),
+      actionButton("pairplot_hour", "Hour")
     ),
     mainPanel(
       plotOutput("pairplot")
