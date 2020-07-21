@@ -4,7 +4,6 @@ library(rlang)
 library(readr)
 library(forecast)
 library(plotly)
-library(corrr)
 library(glue)
 
 
