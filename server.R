@@ -36,7 +36,7 @@ function(input, output, session){
   
   path <- reactive({
     req(input$date)
-    glue("../data/processed_data/{site}_{season}_{date}.rds", site = input$site, 
+    glue("data/processed_data/{site}_{season}_{date}.rds", site = input$site, 
          season = input$season, date = input$date)
   })
   
