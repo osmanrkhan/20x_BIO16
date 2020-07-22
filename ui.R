@@ -95,7 +95,8 @@ fluidPage(
       actionButton("load_pair", "Load Graph")
     ),
     mainPanel(
-      plotlyOutput("pairplot")
+      plotlyOutput("pairplot"),
+      plotlyOutput("covarplot")
     )
-  )
+  ),
 )

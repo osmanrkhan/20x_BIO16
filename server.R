@@ -127,6 +127,24 @@ function(input, output, session){
       )
   })
   
+  cov <- reactive({
+    as.data.frame(cov(data))
+  })
+  covarplot <- eventReactive(input$load_pair, {
+    form_label_x <- names(variables)[which(variables == input$pairplot_xvar)]
+    form_label_y <- names(variables)[which(variables == input$pairplot_yvar)]
+    time <- rep(1:48, each = 1800)/2
+    p <-  plot_ly(x = ~pull(data(), input$pairplot_xvar), 
+                  y = ~pull(data(), input$pairplot_yvar), frame = ~time, 
+                  mode = "markers", type = "scatter") %>%
+      layout(xaxis = list(title = form_label_x), yaxis = list(title = form_label_y),
+             title = glue("{xaxis} vs {yaxis}", xaxis = form_label_x, yaxis = form_label_y))
+    p<- p %>%
+      animation_slider(
+        currentvalue = list(prefix = "time: ", font = list(color="red"), suffix = " hours")
+      )
+  })
+  
   output$pairplot <- renderPlotly({
     pairplot()
   })
