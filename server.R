@@ -36,7 +36,7 @@ function(input, output, session){
   
   path <- reactive({
     req(input$date)
-    glue("../data/processed_data/{site}_{season}_{date}.rds", site = input$site, 
+    glue("data/processed_data/{site}_{season}_{date}.rds", site = input$site, 
          season = input$season, date = input$date)
   })
   
@@ -51,9 +51,6 @@ function(input, output, session){
     head(data(), 15)
   })
 
-  #data <- reactive({
-  #  as_tibble(rollmean(readRDS(path()),as.numeric(as.character(input$window_size)), align = "center"))
-  #});
   
   # Histogram plots  
   hist_plt <- eventReactive(input$load_hist,{
@@ -73,6 +70,7 @@ function(input, output, session){
   
   # Time plots 
   #TODO: move form_label into reactive element 
+  
   skeleton_plt <- reactive({
     form_label <- names(variables)[which(variables == input$vvt)]
     plt <- plot_ly(type = "scatter", mode = "lines") %>% 
@@ -80,60 +78,39 @@ function(input, output, session){
     plt
   })
   
-  # Control what to plot depending on what buttons were pushed 
-  axes_timeplt <- reactiveValues(x = NULL,y = NULL,xlab = NULL, ylab = NULL) 
-  # Observe the action buttons 
-  observeEvent(input$sec,{
-   form_label <- names(variables)[which(variables == input$vvt)]
-   axes_timeplt$x <- data()$second
-   axes_timeplt$y <- pull(data(), input$vvt)
-   axes_timeplt$xlab <- glue("Time ({unit})", unit = "seconds")
-   axes_timeplt$ylab <- form_label
+
+  # Observe the radio buttons
+  vvt_labs <- reactive({
+    if (input$timescale == "sec"){
+      labs <- list(units = "seconds", scale = 1, x = data()$second)
+    } else if (input$timescale == "min"){
+      labs <- list(units = "minutes", scale = 60, x = data()$minute)
+    } else if (input$timescale == "hr"){
+      labs <- list(units = "hours", scale = 3600, x = data()$hour)
+    }
+    return(labs)
   })
-  observeEvent(input$min,{
-    form_label <- names(variables)[which(variables == input$vvt)]
-    axes_timeplt$x <- data()$minute
-    axes_timeplt$y <- forecast::ma(pull(data(), input$vvt),60)
-    axes_timeplt$xlab <- glue("Time ({unit})", unit = "minutes")
-    axes_timeplt$ylab <- glue("Moving Average {lab}", lab = form_label)
-  })
-  observeEvent(input$hour,{
-    form_label <- names(variables)[which(variables == input$vvt)]
-    axes_timeplt$x <- data()$hour
-    axes_timeplt$y <- forecast::ma(pull(data(), input$vvt),3600)
-    axes_timeplt$xlab <- glue("Time ({unit})", unit = "hours")
-    axes_timeplt$ylab <- glue("Moving Average {lab}", lab = form_label)
+  
+  # Plotting
+  vvt_plt <- eventReactive(input$load_vvt,{
+    sk_plt <- skeleton_plt() %>% layout(xaxis = list(title = glue("Time ({unit})", 
+                                                                  unit = vvt_labs()$units))) 
+    for (i in 1:length(input$vvt)){
+      series <- names(variables)[which(variables == input$vvt[i])]
+      y <- forecast::ma(x = pull(data(), input$vvt[i]), order = vvt_labs()$scale)
+      x <- vvt_labs()$x
+      sk_plt <- sk_plt %>% add_lines(x = x, y = y, name = series)
+    }
+    return(sk_plt)
   })
   
   
   output$vvt_plt_vs_time <- renderPlotly({
-    if(is.null(axes_timeplt$x) | is.null(axes_timeplt$y)) return()
-    form_label <- names(variables)[which(variables == input$vvt)]
-    skeleton_plt() %>% add_lines(x = axes_timeplt$x, y = axes_timeplt$y, name = form_label) %>%
-      layout(xaxis = list(title = axes_timeplt$xlab), yaxis = list(title = axes_timeplt$ylab))
+    vvt_plt()
   })
-  
-
-  mult_plot<-eventReactive(input$load_mult,{
-    req(data())
-    col_var = c("black","green","red", "blue", "yellow", "orange")
-    g <- ggplot(data(), aes_string(x = "second", y = input$wind_var[1] ))
-    
-    for(i in 1 : length(input$wind_var)){
-      g <- g + geom_line(aes_string(y = input$wind_var[i]), colour = col_var[i])
-    }
-    ggplotly(g)
-    
-  })
-  
-  output$wind_var_plt_vs_time <- renderPlotly({
-    mult_plot()
-  })
-
   
   
   # pair plot 
-  
   
   pairplot <- eventReactive(input$load_pair,{
     form_label_x <- names(variables)[which(variables == input$pairplot_xvar)]
@@ -153,10 +130,4 @@ function(input, output, session){
   output$pairplot <- renderPlotly({
     pairplot()
   })
-  #plt <- reactive({ggplot(data(),
-  #                        aes(x = !!sym(input$pairplot_xvar), 
-  #                            y = !!sym(input$pairplot_yvar)))})
-  #output$pairplot <- renderPlot({
-  #  plt() + geom_point() + geom_smooth()
-  #})
 }

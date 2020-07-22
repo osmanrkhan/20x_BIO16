@@ -53,7 +53,7 @@ fluidPage(
   h3("Variable vs Time"),
   sidebarLayout(
     sidebarPanel(
-      selectInput("vvt", "Select Variables", 
+      checkboxGroupInput("vvt", "Select Variables", 
                         choices = list( "Vertical Wind Speed" = "w" , 
                                         "Horizontal Wind Speed (North)" = "v" , 
                                         "Horizontal Wind Speed (East)" ="u",
@@ -61,31 +61,14 @@ fluidPage(
                                         "Water Vapor" = "H2O",
                                         "Air Temperature" = "airtemp"),
                         selected = "w"),
-      h4("Render Time Scale"),
-      actionButton("sec", "Second"),
-      actionButton("min", "Minute"),
-      actionButton("hour", "Hour")
+      radioButtons("timescale", h4("Render Time Scale"),
+                   list("Second" = "sec",
+                        "Minute" = "min",
+                        "Hour" = "hr")),
+      actionButton("load_vvt", "Load graph")
     ),
     mainPanel(
       plotlyOutput("vvt_plt_vs_time"),
-    )
-  ),
-  
-  h3("Overlay of variables vs Time"),
-  sidebarLayout(
-    sidebarPanel(
-      checkboxGroupInput("wind_var", "Select Variables", 
-                  choices = list( "Vertical Wind Speed" = "w" , 
-                                  "Horizontal Wind Speed (North)" = "v" , 
-                                  "Horizontal Wind Speed (East)" ="u",
-                                  "CO2" = "CO2",
-                                  "Water Vapor" = "H2O",
-                                  "Air Temperature" = "airtemp"),
-                  selected = "w"),
-      actionButton("load_mult", "Load graph"),
-    ),
-    mainPanel(
-      plotlyOutput("wind_var_plt_vs_time")
     )
   ),
   
