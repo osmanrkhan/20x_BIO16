@@ -36,7 +36,7 @@ function(input, output, session){
   
   path <- reactive({
     req(input$date)
-    glue("data/processed_data/{site}_{season}_{date}.rds", site = input$site, 
+    glue("../data/processed_data/{site}_{season}_{date}.rds", site = input$site, 
          season = input$season, date = input$date)
   })
   
@@ -117,7 +117,7 @@ function(input, output, session){
   mult_plot<-eventReactive(input$load_mult,{
     req(data())
     col_var = c("black","green","red", "blue", "yellow", "orange")
-    g <- ggplot(data(), aes_string(x = "second", y = input$wind_var[1] )) + geom_line()
+    g <- ggplot(data(), aes_string(x = "second", y = input$wind_var[1] ))
     
     for(i in 1 : length(input$wind_var)){
       g <- g + geom_line(aes_string(y = input$wind_var[i]), colour = col_var[i])

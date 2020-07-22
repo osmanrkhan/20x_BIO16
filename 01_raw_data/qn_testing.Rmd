@@ -1,0 +1,69 @@
+---
+title: "Exploration of Raw Data"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(shiny)
+library(viridis)
+library(tidyverse)
+options(shiny.maxRequestSize=50*1024^2)
+```
+
+
+
+```{r load_files, echo = FALSE, eval = FALSE}
+fileInput("rawdata", "Choose CSV File", multiple = T, 
+          accept = c("text/csv","text/comma-separated-values,text/plain",".csv"))
+radioButtons("sep", "Separator",
+             choices = c(Comma = ",",
+                         Semicolon = ";",
+                         Tab = "\t"),
+             selected = ",")
+data <- reactive({
+  as.tibble(read.csv(input$rawdata$datapath, sep = input$sep))
+})
+
+```
+
+ 
+```{r, echo = FALSE}
+#print(data())
+#fluidRow(
+#  selectInput("xcol", label = "Variable on x-axis", names(data())),
+#  selectInput("ycol", label = "Variable on y-axis", names(data()))
+#)
+
+```
+
+```{r pairplots, eval = F, echo = FALSE}
+pair_plots <- function(dataset){
+  shinyApp(
+    ui = fluidPage(
+      fluidRow(
+        selectInput("xcol", label = "Variable on x-axis", names(dataset)),
+        selectInput("ycol", label = "Variable on y-axis", names(dataset))
+      ), 
+      fluidRow(
+        plotOutput("pairplot")
+      )
+    ),
+    
+    server = function(input, output, session){
+      output$pairplot <- renderPlot({
+        ggplot(data = dataset, aes(x = !!input$xcol, y = !!input$ycol)) +
+          geom_point()
+      })
+    }
+  )
+}
+pair_plots(dataset = )
+
+
+```
+```{r echo=F}
+shinyAppDir("../01_raw_data/")
+```
+
