@@ -71,6 +71,24 @@ fluidPage(
     )
   ),
   
+  h3("Overlay of variables vs Time"),
+  sidebarLayout(
+    sidebarPanel(
+      checkboxGroupInput("wind_var", "Select Variables", 
+                  choices = list( "Vertical Wind Speed" = "w" , 
+                                  "Horizontal Wind Speed (North)" = "v" , 
+                                  "Horizontal Wind Speed (East)" ="u",
+                                  "CO2" = "CO2",
+                                  "Water Vapor" = "H2O",
+                                  "Air Temperature" = "airtemp"),
+                  selected = "w"),
+      actionButton("load_mult", "Load graph"),
+    ),
+    mainPanel(
+      plotlyOutput("wind_var_plt_vs_time")
+    )
+  ),
+  
   # Pair plots 
   h3("Bivariate plots"),
   sidebarLayout(

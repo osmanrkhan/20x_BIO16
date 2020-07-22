@@ -113,17 +113,42 @@ function(input, output, session){
     skeleton_plt() %>% add_lines(x = axes_timeplt$x, y = axes_timeplt$y, name = form_label) %>%
       layout(xaxis = list(title = axes_timeplt$xlab), yaxis = list(title = axes_timeplt$ylab))
   })
+  
 
+  mult_plot<-eventReactive(input$load_mult,{
+    req(data())
+    col_var = c("black","green","red", "blue", "yellow", "orange")
+    g <- ggplot(data(), aes_string(x = "second", y = input$wind_var[1] )) + geom_line()
+    
+    for(i in 1 : length(input$wind_var)){
+      g <- g + geom_line(aes_string(y = input$wind_var[i]), colour = col_var[i])
+    }
+    ggplotly(g)
+    
+  })
+  
+  output$wind_var_plt_vs_time <- renderPlotly({
+    mult_plot()
+  })
+
+  
+  
   # pair plot 
   
   
   pairplot <- eventReactive(input$load_pair,{
     form_label_x <- names(variables)[which(variables == input$pairplot_xvar)]
     form_label_y <- names(variables)[which(variables == input$pairplot_yvar)]
-    p <- plot_ly() %>% add_trace(x = pull(data(), input$pairplot_xvar), 
-                               y = pull(data(), input$pairplot_yvar), mode = "markers", type = "scattergl") %>%
+    time <- rep(1:48, each = 1800)/2
+    p <-  plot_ly(x = ~pull(data(), input$pairplot_xvar), 
+                               y = ~pull(data(), input$pairplot_yvar), frame = ~time, 
+                  mode = "markers", type = "scatter") %>%
                         layout(xaxis = list(title = form_label_x), yaxis = list(title = form_label_y),
                                title = glue("{xaxis} vs {yaxis}", xaxis = form_label_x, yaxis = form_label_y))
+    p<- p %>%
+      animation_slider(
+        currentvalue = list(prefix = "time: ", font = list(color="red"), suffix = " hours")
+      )
   })
   
   output$pairplot <- renderPlotly({
