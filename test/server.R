@@ -110,27 +110,30 @@ function(input, output, session){
   })
   
   
-  # pair plot 
+  # plot_ly animation
   
   pairplot <- eventReactive(input$load_pair,{
     form_label_x <- names(variables)[which(variables == input$pairplot_xvar)]
     form_label_y <- names(variables)[which(variables == input$pairplot_yvar)]
-    time <- rep(1:48, each = 1800)/2
-    each = 1800
+    
+    frame = as.integer(input$frame)
+    each = 3600/frame
+    time <- round(rep(1:(24*frame), each = each)/frame, 2)
+
     mod = c()
-    for(i in 1:48){
+    for(i in 1:(24*frame)){
       x = pull(data(), input$pairplot_xvar)[seq((i-1)*(each) + 1, length = each)]
       y = pull(data(), input$pairplot_yvar)[seq((i-1)*(each) + 1, length = each)]
       mod = c(mod, fitted(lm(y ~ x)))
     }
-    time <- rep(1:48, each = 1800)/2
+    
     p <-  plot_ly(x = ~pull(data(), input$pairplot_xvar), 
                   y = ~pull(data(), input$pairplot_yvar), frame = ~time, 
-                  mode = "markers", type = "scatter")  %>%
-      add_lines(x = ~pull(data(), input$pairplot_xvar), y= ~mod, frame = ~time) %>%
+                  mode = "markers", type = "scatter", name = "data values")  %>%
+      add_lines(x = ~pull(data(), input$pairplot_xvar), y= ~mod, frame = ~time, name = "Regression Line") %>%
                         layout(xaxis = list(title = form_label_x), yaxis = list(title = form_label_y),
                                title = glue("{xaxis} vs {yaxis}", xaxis = form_label_x, yaxis = form_label_y))
-    p<- p %>%
+    p<- p  %>% animation_opts(frame = 1500, transition = 1000) %>%
       animation_slider(
         currentvalue = list(prefix = "time: ", font = list(color="red"), suffix = " hours")
       )
@@ -139,6 +142,9 @@ function(input, output, session){
   cov <- reactive({
     as.data.frame(cov(data))
   })
+  
+  #using sliders. Not animated but refocus on each step
+  #issues covariance not working (probaly minor bug)
   
   covarplot <- eventReactive(input$load_pair, {
     form_label_x <- names(variables)[which(variables == input$pairplot_xvar)]
@@ -197,12 +203,6 @@ function(input, output, session){
   })
   
   output$pairplot <- renderPlotly({
-     covarplot()
-    #observeEvent(input$load_all, {
-      #x = pull(data(), input$pairplot_xvar)
-      #y =  pull(data(), input$pairplot_yvar)
-      #plot_ly(x = ~x, y = ~y, type = "scatter", 
-     #         mode = "markers") %>% add_lines(x =~x, y = ~fitted(lm(y ~ x)))
-    #})
+     pairplot()
   })
 }
