@@ -64,6 +64,6 @@ pair_plots(dataset = )
 
 ```
 ```{r echo=F}
-shinyAppDir("../01_raw_data/")
+shinyAppDir("./")
 ```
 
