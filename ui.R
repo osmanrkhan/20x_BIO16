@@ -92,7 +92,10 @@ fluidPage(
                                   "Water Vapor" = "H2O",
                                   "Air Temperature" = "airtemp"),
                   selected = "v"),
-      actionButton("load_pair", "Load Graph")
+      selectInput("frame", "Select Time Frame for Time Plots",
+                  choices = list("20 minutes" = 3, "30 mintes" = 2, "1 hour" = 1 )),
+      actionButton("load_time", "Load Bivariate Plot by Time"),
+      actionButton("load_all", "Load Complete Bivariate Plot")  
     ),
     mainPanel(
       plotlyOutput("pairplot"),

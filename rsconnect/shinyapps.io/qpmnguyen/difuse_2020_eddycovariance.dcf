@@ -5,6 +5,9 @@ account: qpmnguyen
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2598812
-bundleId: 3422301
+bundleId: 3451605
 url: https://qpmnguyen.shinyapps.io/difuse_2020_eddycovariance/
-when: 1595438468.24398
+when: 1596047889.46295
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: README.md|archive/main_lesson.Rmd|archive/process_data.R|archive/Procfile|extern/T3K/ARBERG062.pdf|extern/T3K/Example_data.zip|extern/T3K/TK311_Linux.zip|extern/T3K/TK311_Windows.zip|test/qn_testing.Rmd|test/raw data exploration.Rmd|test/server.R|test/ui.R|docs
