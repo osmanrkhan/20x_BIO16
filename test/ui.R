@@ -1,5 +1,10 @@
 library(shiny)
 library(plotly)
+source("dataPreview.R")
+source("histogram.R")
+source("var_vs_time.R")
+source("bivariate_plot.R")
+
 options(shiny.maxRequestSize=50*1024^2)
 
 # ui elements 
@@ -7,44 +12,22 @@ fluidPage(
   h3("File selection"),
   sidebarLayout(
     sidebarPanel(
-      selectInput("site", h3("Select Site"), choices = list("Silas Little" = "silas_little"), 
-                  selected = "silas_little"),
-      selectInput("season", h3("Select season"),
-                  choices = list("summer", "winter"), selected = 1),
-      selectInput("date", h3("Select date"), ""),
-      actionButton(inputId = "load", "Load Data")
+      data_preview_var_ui("data_vars")
     ),
     mainPanel(
       h4("Data Preview"),
-      tableOutput(outputId = "preview")
+      tableOutput("preview")
     )
   ),
-  
-  
-  #h3("Data Preview"),
-  #selectInput("window_size", "Select the size of window for running average", 
-  #            choices = list("10 seconds" = "10", "30 seconds " = "30" , "1 minute" = "60"),
-  #            selected = "10 seconds"),
-  #textOutput("checking"),
   
   # Histogram
   h3("Histogram"),
   sidebarLayout(
     sidebarPanel(
-      selectInput("histogram_var", h4("Select box"), 
-                  choices = list( "Vertical Wind Speed" = "w" , 
-                                  "Horizontal Wind Speed (North)" = "v" , 
-                                  "Horizontal Wind Speed (East)" ="u",
-                                  "CO2" = "CO2",
-                                  "Water Vapor" = "H2O",
-                                  "Air Temperature" = "airtemp"),
-                  selected = "CO2"),
-      
-      sliderInput("histogram_bins", h4("number of bins"),
-                  min = 0, max = 100, value = 50),
-      actionButton("load_hist", "Load Graph")
+      histogram_ui(id = "histo_plot")
     ),
     mainPanel(
+      #plotlyOutput("box_plot"),
       plotlyOutput("histogram")
     )
   ),
@@ -53,19 +36,7 @@ fluidPage(
   h3("Variable vs Time"),
   sidebarLayout(
     sidebarPanel(
-      checkboxGroupInput("vvt", "Select Variables", 
-                        choices = list( "Vertical Wind Speed" = "w" , 
-                                        "Horizontal Wind Speed (North)" = "v" , 
-                                        "Horizontal Wind Speed (East)" ="u",
-                                        "CO2" = "CO2",
-                                        "Water Vapor" = "H2O",
-                                        "Air Temperature" = "airtemp"),
-                        selected = "w"),
-      radioButtons("timescale", h4("Render Time Scale"),
-                   list("Second" = "sec",
-                        "Minute" = "min",
-                        "Hour" = "hr")),
-      actionButton("load_vvt", "Load graph")
+      plot_var_vs_time_ui("time_plot")
     ),
     mainPanel(
       plotlyOutput("vvt_plt_vs_time"),
@@ -76,31 +47,11 @@ fluidPage(
   h3("Bivariate plots"),
   sidebarLayout(
     sidebarPanel(
-      selectInput("pairplot_xvar", "Select X Axis", 
-                  choices = list( "Vertical Wind Speed" = "w" , 
-                                  "Horizontal Wind Speed (North)" = "v" , 
-                                  "Horizontal Wind Speed (East)" ="u",
-                                  "CO2" = "CO2",
-                                  "Water Vapor" = "H2O",
-                                  "Air Temperature" = "airtemp"),
-                  selected = "w"),
-      selectInput("pairplot_yvar", "Select Y Axis", 
-                  choices = list( "Vertical Wind Speed" = "w" , 
-                                  "Horizontal Wind Speed (North)" = "v" , 
-                                  "Horizontal Wind Speed (East)" ="u",
-                                  "CO2" = "CO2",
-                                  "Water Vapor" = "H2O",
-                                  "Air Temperature" = "airtemp"),
-                  selected = "v"),
-      selectInput("frame", "Select Time Frame for animation",
-                  choices = list("20 minutes" = 3, "30 mintes" = 2, "1 hour" = 1 )),
-      
-      fluidRow(column(1, actionButton("load_pair", "Load Animation")),
-               column (1,  offset = 5, actionButton("load_all", "Load Graph"))) ,  
-    
+      bivariate_ui("bivar_plot")
     ),
     mainPanel(
-      plotlyOutput("pairplot")
+      plotlyOutput("pairplot"),
+      plotlyOutput("covarplot")
     )
   ),
 )
