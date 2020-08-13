@@ -14,7 +14,7 @@ histogram_ui <- function(id){
                                 "Air Temperature" = "airtemp"),
                 selected = "CO2"),
     
-    sliderInput(ns("histogram_bins"), h4("number of bins"),
+    sliderInput(ns("histogram_bins"), h4("Number of bins"),
                 min = 0, max = 100, value = 50),
     actionButton(ns("load_hist"), "Load Graph")
   )

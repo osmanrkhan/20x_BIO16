@@ -5,10 +5,10 @@ library(readr)
 library(forecast)
 library(plotly)
 library(glue)
-source("dataPreview.R")
-source("histogram.R")
-source("var_vs_time.R")
-source("bivariate_plot.R")
+source("R/dataPreview.R")
+source("R/histogram.R")
+source("R/var_vs_time.R")
+source("R/bivariate_plot.R")
 
 function(input, output, session){
   # List of variables and their more formatted names for easy plotting

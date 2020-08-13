@@ -20,12 +20,12 @@ function(input, output, session){
                     "Air Temperature" = "airtemp")
   
   # load data on push load_data
-  data <- data_preview_server(id = "data_vars", start_path = "../data/processed_data/")
+  data <- data_preview_server(id = "data_vars", start_path = "data/processed_data/")
   
   # Getting head table 
   # TODO: Control number of lines 
   output$preview <- renderTable({
-    head(data(), 15)
+    head(data(), 10)
   })
   
   
