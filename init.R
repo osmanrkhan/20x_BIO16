@@ -1,4 +1,4 @@
-my_packages <- c("tidyverse", "forecast", "rlang", "readr", "plotly", "glue")
+my_packages <- c("tidyverse", "forecast", "rlang", "readr", "plotly", "glue", "shiny")
 
 install_if_missing = function(p) {
   if (p %in% rownames(installed.packages()) == FALSE) {
