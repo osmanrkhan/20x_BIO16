@@ -170,14 +170,27 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
       if (length(wind) >= 1 && length(non_winds) > 0){ # if there is one wind variable
         
         non_wind_series <- names(variables)[which(variables == input$vvt[non_winds])]
-        y_axis <- list(side = "left", title = "Wind Speed")
-        y_axis2 <- list(side = "right", overlaying = "y", title = non_wind_series)
         
+       
         
+        wind_min = 500
+        wind_max = -500
         
         for (i in 1:length(wind)){ #go trhough list of winds
           wind_series <- series <- variables[which(variables == input$vvt[wind[i]])]
           y_val = pull(data, input$vvt[wind[i]])[indices]
+          
+          curr_min = min(y_val)
+          curr_max  = max(y_val)
+          
+          if(curr_min < wind_min){
+            wind_min =  curr_min
+          }
+          
+          if(curr_max > wind_max){
+            wind_max =  curr_max
+          }
+          
           total_var[[i]] = create_frames(num_frames, y_val, data$second, each, wind_series)
         }
         
@@ -200,21 +213,28 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
                               hoverinfo = 'name', yaxis = "y2")
         }
         
-        sk_plt <- sk_plt %>% layout(yaxis2 = y_axis2, yaxis = y_axis,
+        y_axis1 <- list(side = "left", title = "Wind Speed", range = c(wind_min, wind_max))
+        y_axis2 <- list(side = "right", overlaying = "y", title = non_wind_series, 
+                        range = c(min(y1), max(y1)))
+        
+        sk_plt <- sk_plt %>% layout(yaxis2 = y_axis2, yaxis = y_axis1,
                  sliders = list(list(active = 1, currentvalue = list(prefix = "Frequency: "),
                                      steps = steps)))
         
       } 
       
-      else if (length(wind) == 0  && length(non_winds) > 0) {
+      else if (length(wind) == 0  && length(non_winds) > 0) { #  2 non winds variable
         
         series_1 <- names(variables)[which(variables == input$vvt[non_winds[1]])]
         series_2 <- names(variables)[which(variables == input$vvt[non_winds[2]])]
-        y1 <- list(side = "left", title = series_1)
-        y2 <- list(side = "right", overlaying = "y1", title = series_2)
+       
+        #contains a list of min and max for both variables
+        min_max = list()
         
         for (i in 1:length(non_winds)){
           y <- pull(data, input$vvt[non_winds[i]])[indices]
+          
+          min_max[[i]] = c(min(y), max(y))
           x <- data$second[indices]
           total_var[[i]] = create_frames(num_frames, y, x, each, get(glue("series_{num}", num = i)))
         }
@@ -228,6 +248,13 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
           }
         }
         
+        y1 <- list(side = "left", title = series_1, range = min_max[[1]])
+        y2 <- list(side = "right", overlaying = "y1", title = series_2)
+        if(length(non_winds)  == 2){
+          y2 <- list(side = "right", overlaying = "y1", title = series_2, range = min_max[[2]])
+        }
+       
+        
         sk_plt <- sk_plt %>% layout(
           yaxis2 = y2, yaxis = y1, 
           sliders = list(list(active = 1, currentvalue = list(prefix = "Frequency: "),
@@ -235,10 +262,27 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
         
       } 
       
-      else if (length(wind) > 0 && length(non_winds) == 0){
+      else if (length(wind) > 0 && length(non_winds) == 0){ # only winds variable
+        
+       
+        
+        wind_min = 500
+        wind_max = -500
+        
         for (i in 1:length(wind)){ #go trhough list of winds
           wind_series <- series <- variables[which(variables == input$vvt[wind[i]])]
           y_val = pull(data, input$vvt[wind[i]])[indices]
+          curr_min = min(y_val)
+          curr_max  = max(y_val)
+          
+          if(curr_min < wind_min){
+            wind_min =  curr_min
+          }
+          
+          if(curr_max > wind_max){
+            wind_max =  curr_max
+          }
+          
           total_var[[i]] = create_frames(num_frames, y_val, data$second[indices], each, wind_series)
         }
         
@@ -252,7 +296,7 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
         }
         
         sk_plt <- sk_plt %>%
-          layout(yaxis = list(title = "Wind Speed"),
+          layout(yaxis = list(title = "Wind Speed", range = c(wind_min, wind_max)),
                  sliders = list(list(active = 1, currentvalue = list(prefix = "Frequency: "),
                                      steps = steps)))
       } 
