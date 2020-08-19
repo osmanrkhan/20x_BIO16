@@ -25,7 +25,7 @@ function(input, output, session){
   # Getting head table 
   # TODO: Control number of lines 
   output$preview <- renderTable({
-    head(data(), 15)
+    head(data(), 20)
   })
   
   
