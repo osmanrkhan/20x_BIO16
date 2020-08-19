@@ -1,9 +1,10 @@
 library(shiny)
 library(plotly)
-source("dataPreview.R")
+source("dataLoading.R")
 source("histogram.R")
 source("var_vs_time.R")
 source("bivariate_plot.R")
+
 
 options(shiny.maxRequestSize=50*1024^2)
 
@@ -34,14 +35,7 @@ fluidPage(
   
   # Variable vs time  
   h3("Variable vs Time"),
-  sidebarLayout(
-    sidebarPanel(
-      plot_var_vs_time_ui("time_plot")
-    ),
-    mainPanel(
-      plotlyOutput("vvt_plt_vs_time"),
-    )
-  ),
+  plot_var_vs_time_ui1("time_plot", variables),
   
   # Pair plots 
   h3("Bivariate plots"),

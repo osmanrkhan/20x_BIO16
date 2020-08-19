@@ -1,3 +1,13 @@
+
+#'   List of variables and their more formatted names for easy plotting
+#'   used throughout the app
+variables <- list("Vertical Wind Speed" = "w" , 
+                  "Horizontal Wind Speed (North)" = "v" , 
+                  "Horizontal Wind Speed (East)" ="u",
+                  "CO2" = "CO2",
+                  "Water Vapor" = "H2O",
+                  "Air Temperature" = "airtemp")
+
 #' function to create a list of frames for plotting
 #' 
 #' param: @num_frames: number of frames
