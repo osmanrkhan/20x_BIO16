@@ -161,7 +161,6 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
       each <- 3600/frame # divide hour by time frame
       num_frames = 24*frame # total number of frames
       total_var <- list()
-      total_var <- list()
       #slider 
       #create the slider steps
       steps <- create_slider_step(num_frames, time_frame)
@@ -171,15 +170,15 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
         
         non_wind_series <- names(variables)[which(variables == input$vvt[non_winds])]
         
-       
-        
+
         wind_min = 500
         wind_max = -500
         
         for (i in 1:length(wind)){ #go trhough list of winds
           wind_series <- series <- variables[which(variables == input$vvt[wind[i]])]
           y_val = pull(data, input$vvt[wind[i]])[indices]
-          
+        
+          #find max and min
           curr_min = min(y_val)
           curr_max  = max(y_val)
           
@@ -191,6 +190,13 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
             wind_max =  curr_max
           }
           
+          #function create_frames is found in global.r
+          #creates a nested list of this form
+          #list of wind variables:
+          # list of frame:
+          #   list of x values,
+          #   list of yvalues,
+          #   visible (is this the current frame)
           total_var[[i]] = create_frames(num_frames, y_val, data$second, each, wind_series)
         }
         
@@ -228,7 +234,7 @@ plot_by_time <- function(id, variables, data, indices, input, output, session, t
         series_1 <- names(variables)[which(variables == input$vvt[non_winds[1]])]
         series_2 <- names(variables)[which(variables == input$vvt[non_winds[2]])]
        
-        #contains a list of min and max for both variables
+        #contains a min and max for both non wind variables
         min_max = list()
         
         for (i in 1:length(non_winds)){

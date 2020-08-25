@@ -9,11 +9,13 @@ source("dataLoading.R")
 source("histogram.R")
 source("var_vs_time.R")
 source("bivariate_plot.R")
+source("NEE_bivariate.R")
 
 function(input, output, session){
-
+  
   # load data on push load_data
-  data <- data_preview_server(id = "data_vars", start_path = "../data/processed_data/silas_little")
+  start_path = "../data/processed_data/"
+  data <- data_preview_server(id = "data_vars", start_path)
   
   # Getting head table 
   # TODO: Control number of lines 
@@ -29,15 +31,37 @@ function(input, output, session){
     hist_plt()
   })
   
-  
+  #var vs time plots
   plot_var_vs_time_server(id = "time_plot", variables = variables, data = data())
- 
   
-  
+  #pairplot
   pairplot <- bivariate_server(id = "bivar_plot", variables = variables, data = data())
   
   # render pairplot
   output$pairplot <- renderPlotly({
     suppressWarnings(pairplot$plot)
+  })
+  
+              # ----------------------------------------------------- #
+  eddy_cov_variables = list("Air Temperature" = "TA",
+                            "Air Temperature Squared" = "TA.2",
+                            "Photosynthetically Active Radiation" = "PPFD_in",
+                            "Soil Moisture" = "Vol.W.C",
+                            "Relative Humidity" = "RH")
+  
+  # nee file selection
+  nee_data <- data_preview_server(id = "nee_data_vars", start_path)
+  #nee_data <- readRDS("../data/processed_data/processed_silas_2018.rds")
+  
+  # Getting head table 
+  # TODO: Control number of lines 
+  output$nee_preview <- renderTable({
+    head(nee_data(), 10)
+  })
+  
+  nee_bivar_plt <- NEE_bivar_server(id = "NEE_bivariate", variables = eddy_cov_variables, data = nee_data())
+  
+  output$NEE_bivariate_plot <- renderPlotly({
+    suppressWarnings(nee_bivar_plt())
   })
 }

@@ -4,9 +4,14 @@ source("dataPreview.R")
 source("histogram.R")
 source("var_vs_time.R")
 source("bivariate_plot.R")
+source("NEE_bivariate.R")
 
 options(shiny.maxRequestSize=50*1024^2)
 
+#' files used for data loading
+raw_data_files = list("First DataSet" = "_comb_2018-06-05_2018-01-19",
+                      "Second DataSet" = "_comb_2018-06-06_2018-01-20" )
+nee_data_files = list("DataSet" = "processed_silas_2018")
 # ui elements 
 fluidPage(
   h3("Data Preview"),
@@ -27,7 +32,7 @@ fluidPage(
         tags$li(tags$strong("H2O"), ": H2O mixing ratio (micro-mol H2O per mol of air)"),
         tags$li(tags$strong("code"), ": Error code for sonic sensor paths")
       ),
-      data_preview_var_ui("data_vars"),
+      data_preview_var_ui("data_vars", raw_data_files),
       tags$ul(
         tags$li(tags$strong("comb_2018-06-05_2018-01-19"), ": Data set combining dates 06/05/2018 (summer) and 01/19/2018 (winter)"),
         tags$li(tags$strong("comb_2018-06-06_2018-01-20"), ": Data set combining dates 06/06/2018 (summer) and 01/20/2018 (winter)")
@@ -73,5 +78,25 @@ fluidPage(
       plotlyOutput("pairplot"),
       plotlyOutput("covarplot")
     )
+  ), # NEE file selection
+  h3("NEE Data File selection"),
+  sidebarLayout(
+    sidebarPanel(
+      data_preview_var_ui("nee_data_vars", nee_data_files)
+    ),
+    mainPanel(
+      h4("NEE Data Preview"),
+      tableOutput("nee_preview")
+    )
   ),
+  # NEE bivariate plot
+  h3("NEE Bivariate plots"),
+  sidebarLayout(
+    sidebarPanel(
+      NEE_bivar_ui("NEE_bivariate" )
+    ),
+    mainPanel(
+      plotlyOutput("NEE_bivariate_plot")
+    )
+  )
 )

@@ -5,10 +5,11 @@ library(readr)
 library(forecast)
 library(plotly)
 library(glue)
-source("R/dataPreview.R")
-source("R/histogram.R")
-source("R/var_vs_time.R")
-source("R/bivariate_plot.R")
+source("dataPreview.R")
+source("histogram.R")
+source("var_vs_time.R")
+source("bivariate_plot.R")
+source("NEE_bivariate.R")
 
 function(input, output, session){
   # List of variables and their more formatted names for easy plotting
@@ -20,7 +21,8 @@ function(input, output, session){
                     "Air Temperature" = "airtemp")
   
   # load data on push load_data
-  data <- data_preview_server(id = "data_vars", start_path = "../data/processed_data/")
+  start_path = "../data/processed_data/"
+  data <- data_preview_server(id = "data_vars", start_path)
   
   # Getting head table 
   # TODO: Control number of lines 
@@ -49,4 +51,25 @@ function(input, output, session){
   output$pairplot <- renderPlotly({
     suppressWarnings(pairplot$plot)
   })
+  
+  nee_data <- data_preview_server(id = "nee_data_vars", start_path)
+  # Getting head table 
+  # TODO: Control number of lines 
+  output$nee_preview <- renderTable({
+    head(nee_data(), 10)
+  })
+  eddy_cov_variables = list("Air Temperature" = "TA",
+                            "Air Temperature Squared" = "TA.2",
+                            "Photosynthetically Active Radiation" = "PPFD_in",
+                            "Soil Moisture" = "Vol.W.C",
+                            "Relative Humidity" = "RH")
+  
+  
+  nee_bivar_plt <- NEE_bivar_server(id = "NEE_bivariate", variables = eddy_cov_variables, data = nee_data())
+  
+  output$NEE_bivariate_plot <- renderPlotly({
+    suppressWarnings(nee_bivar_plt())
+  })
+  
+  
 }
