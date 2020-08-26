@@ -1,12 +1,26 @@
 
 #'   List of variables and their more formatted names for easy plotting
 #'   used throughout the app
+#'   
+
 variables <- list("Vertical Wind Speed" = "w" , 
                   "Horizontal Wind Speed (North)" = "v" , 
                   "Horizontal Wind Speed (East)" ="u",
                   "CO2" = "CO2",
                   "Water Vapor" = "H2O",
                   "Air Temperature" = "airtemp")
+
+   
+get_var_fullname <- function(varname){
+  variables <- list("Vertical Wind Speed" = "w" , 
+                    "Horizontal Wind Speed (North)" = "v" , 
+                    "Horizontal Wind Speed (East)" ="u",
+                    "CO2" = "CO2",
+                    "Water Vapor" = "H2O",
+                    "Air Temperature" = "airtemp")
+  longname <- names(variables)[which(variables %in% varname)]
+  return(longname) 
+}
 
 #' function to create a list of frames for plotting
 #' 

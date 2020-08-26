@@ -19,7 +19,6 @@ data_preview_server <- function(id, start_path) {
   moduleServer(
     id,
     function(input, output, session){
-      
       #finding the path
       path <- reactive({
         req(input$dataset)
