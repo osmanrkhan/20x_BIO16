@@ -81,5 +81,6 @@ function(input, output, session){
     suppressWarnings(nee_bivar_plt())
   })
   
-  
+  output$sumtab <- renderText({"Placeholder text for summary table"})
+  output$sumplot <- renderText({"Placeholder plot for summary table"})
 }

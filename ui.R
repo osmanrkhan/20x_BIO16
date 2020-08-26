@@ -25,6 +25,7 @@ eddy_cov_time_variables = list("Julian Day" = "JD", "Month" = "DT", "Hours of Da
 
 # ui elements 
 fluidPage(
+  h1("Raw Eddy Covariance Data"),
   h3("Data Preview"),
   sidebarLayout(
     sidebarPanel(
@@ -82,6 +83,7 @@ fluidPage(
   br(),
   br(),
   br(),
+  
   # Pair plots 
   h3("Bivariate plots"),
   sidebarLayout(
@@ -92,6 +94,8 @@ fluidPage(
       plotlyOutput("pairplot")
     )
   ), # NEE file selection
+  hr(),
+  h1("Year long Eddy Covariance Data"),
   h3("NEE Data File selection"),
   sidebarLayout(
     sidebarPanel(
@@ -102,6 +106,7 @@ fluidPage(
       tableOutput("nee_preview")
     )
   ),
+  
   # NEE variable vs time
   h3("NEE Time plots"),
   sidebarLayout(
@@ -120,6 +125,17 @@ fluidPage(
     ),
     mainPanel(
       plotlyOutput("NEE_bivariate_plot")
+    )
+  ),
+  
+  # Regression builder
+  h3("Gapfilling regression model"),
+  sidebarLayout(
+    sidebarPanel(
+      
+    ), mainPanel(
+      textOutput("sumtab"),
+      textOutput("sumplot")
     )
   )
 )
