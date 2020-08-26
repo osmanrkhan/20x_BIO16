@@ -54,14 +54,15 @@ fluidPage(
   
   # Variable vs time  
   h3("Variable vs Time"),
-  sidebarLayout(
-    sidebarPanel(
-      plot_var_vs_time_ui("time_plot")
-    ),
-    mainPanel(
-      plotlyOutput("vvt_plt_vs_time"),
-    )
-  ),
+  #sidebarLayout(
+  #  sidebarPanel(
+  #    plot_var_vs_time_ui("time_plot")
+  #  ),
+  #  mainPanel(
+  #    plotlyOutput("vvt_plt_vs_time"),
+  #  )
+  #),
+  #plot_var_vs_time_ui1("time_plot", variables),
   
   # Pair plots 
   h3("Bivariate plots"),
