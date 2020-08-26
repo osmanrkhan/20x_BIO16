@@ -77,6 +77,7 @@ fluidPage(
       plotlyOutput("vvt_plt")
     )
   ),
+  
   # all these breaks are because we're fixing the size of the vvt plots 
   br(),
   br(),
