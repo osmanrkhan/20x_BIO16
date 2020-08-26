@@ -5,6 +5,7 @@ source("histogram.R")
 source("var_vs_time.R")
 source("bivariate_plot.R")
 source("NEE_bivariate.R")
+source("NEE_time_plot.R")
 
 options(shiny.maxRequestSize=50*1024^2)
 
@@ -14,6 +15,14 @@ site =  list("Silas Little" = "silas_little")
 raw_data_files = list("First DataSet" = "comb_2018-06-05_2018-01-19",
                       "Second DataSet" = "comb_2018-06-06_2018-01-20" )
 nee_data_files = list("DataSet" = "2018")
+eddy_cov_variables = list("NEE" = "NEE",
+                          "Air Temperature" = "TA",
+                          "Air Temperature Squared" = "TA.2",
+                          "Photosynthetically Active Radiation" = "PPFD_in",
+                          "Soil Moisture" = "Vol.W.C",
+                          "Relative Humidity" = "RH")
+eddy_cov_time_variables = list("Julian Day" = "JD", "Month" = "DT", "Hours of Day" =  "HM")
+
 # ui elements 
 fluidPage(
   h3("Data Preview"),
@@ -78,7 +87,6 @@ fluidPage(
     ),
     mainPanel(
       plotlyOutput("pairplot"),
-      plotlyOutput("covarplot")
     )
   ), # NEE file selection
   h3("NEE Data File selection"),
@@ -91,11 +99,21 @@ fluidPage(
       tableOutput("nee_preview")
     )
   ),
+  # NEE variable vs time
+  h3("NEE Time plots"),
+  sidebarLayout(
+    sidebarPanel(
+      NEE_time_plot_ui("NEE_var_vs_time", eddy_cov_variables, eddy_cov_time_variables)
+    ),
+    mainPanel(
+      plotlyOutput("NEE_time_plot")
+    )
+  ),
   # NEE bivariate plot
   h3("NEE Bivariate plots"),
   sidebarLayout(
     sidebarPanel(
-      NEE_bivar_ui("NEE_bivariate" )
+      NEE_bivar_ui("NEE_bivariate", eddy_cov_variables )
     ),
     mainPanel(
       plotlyOutput("NEE_bivariate_plot")

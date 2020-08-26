@@ -1,16 +1,11 @@
 #' lets the user select the variables to be graphed
 #' param @id: to link ui and server
-NEE_bivar_ui <- function(id){
+NEE_bivar_ui <- function(id, variables){
   ns <- NS(id)
   tagList(
     selectInput(ns("var"), h4("Select box"), 
-                choices = list("Air Temperature" = "TA",
-                               "Air Temperature Squared" = "TA.2",
-                               "Photosynthetically Active Radiation" = "PPFD_in",
-                               "Soil Moisture" = "Vol.W.C",
-                               "Relative Humidity" = "RH"
-                                ),
-                selected = "Air Temperature"),
+                choices = variables,
+                selected = 1),
     radioButtons(ns("separation"), h4("Separate by"),
                  choices = list("Seasons" = "JD_c", "Daily" = "HM_c", "No Separation" = "none"),
                  selected = "none"),

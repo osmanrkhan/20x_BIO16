@@ -10,8 +10,10 @@ source("histogram.R")
 source("var_vs_time.R")
 source("bivariate_plot.R")
 source("NEE_bivariate.R")
+source("NEE_time_plot.R")
 
 function(input, output, session){
+  
   # List of variables and their more formatted names for easy plotting
   variables <- list("Vertical Wind Speed" = "w" , 
                     "Horizontal Wind Speed (North)" = "v" , 
@@ -20,6 +22,15 @@ function(input, output, session){
                     "Water Vapor" = "H2O",
                     "Air Temperature" = "airtemp")
   
+  eddy_cov_variables = list("NEE" = "NEE",
+                            "Air Temperature" = "TA",
+                            "Air Temperature Squared" = "TA.2",
+                            "Photosynthetically Active Radiation" = "PPFD_in",
+                            "Soil Moisture" = "Vol.W.C",
+                            "Relative Humidity" = "RH")
+  eddy_cov_time_variables = list("Julian Day" = "JD", "Month" = "DT", "Hours of Day" =  "HM")
+  
+          # ----------------------------------------------------------------#
   # load data on push load_data
   start_path = "data/processed_data/"
   data <- data_preview_server(id = "data_vars", start_path)
@@ -52,18 +63,22 @@ function(input, output, session){
     suppressWarnings(pairplot$plot)
   })
   
+             # ----------------------------------------------------------------#
+  
   nee_data <- data_preview_server(id = "nee_data_vars", start_path)
   # Getting head table 
   # TODO: Control number of lines 
   output$nee_preview <- renderTable({
     head(nee_data(), 10)
   })
-  eddy_cov_variables = list("Air Temperature" = "TA",
-                            "Air Temperature Squared" = "TA.2",
-                            "Photosynthetically Active Radiation" = "PPFD_in",
-                            "Soil Moisture" = "Vol.W.C",
-                            "Relative Humidity" = "RH")
   
+  # nee time plot
+  nee_time_plt <-  NEE_time_plot_server("NEE_var_vs_time", nee_data(), eddy_cov_time_variables,
+                                        eddy_cov_variables)
+  
+  output$NEE_time_plot <- renderPlotly({
+    suppressWarnings(nee_time_plt())
+  })
   
   nee_bivar_plt <- NEE_bivar_server(id = "NEE_bivariate", variables = eddy_cov_variables, data = nee_data())
   
