@@ -2,14 +2,12 @@ library(shiny)
 
 #lets the user select the site, season and date of the file
 #param @id: to link input and output
-data_preview_var_ui <- function(id){
+data_preview_var_ui <- function(id, datasets, site){
   ns <- NS(id)
   tagList(
-    selectInput(ns("dataset"), 
-                h3("Select data Set"), 
-                choices = list("First DataSet" = "comb_2018-06-05_2018-01-19",
-                               "Second DataSet" = "comb_2018-06-06_2018-01-20" ), 
-                selected = "First DataSet"),
+    selectInput(ns("site"), h5(strong("Select site to view data")), choices = site, 
+                selected = site[[1]]),
+    selectInput(ns("dataset"), h3("Select data Set"), choices = datasets, selected = datasets[[1]]),
     actionButton(inputId = ns("load"), "Load Data")
   )
 }
@@ -24,7 +22,7 @@ data_preview_server <- function(id, start_path) {
       #finding the path
       path <- reactive({
         req(input$dataset)
-        glue("{start_path}_{dataset}.rds", start_path = start_path, dataset = input$dataset)
+        glue("{start_path}{site}_{dataset}.rds", start_path = start_path, site = input$site, dataset = input$dataset)
       })
       
       data <- eventReactive(eventExpr = input$load,{
