@@ -5,12 +5,12 @@ library(readr)
 library(forecast)
 library(plotly)
 library(glue)
-source("dataLoading.R")
-source("histogram.R")
-source("var_vs_time.R")
-source("bivariate_plot.R")
-source("NEE_bivariate.R")
-source("NEE_time_plot.R")
+# source("dataLoading.R")
+# source("histogram.R")
+# source("var_vs_time.R")
+# source("bivariate_plot.R")
+# source("NEE_bivariate.R")
+# source("NEE_time_plot.R")
 
 
 function(input, output, session){

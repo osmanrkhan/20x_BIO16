@@ -5,12 +5,7 @@ library(readr)
 library(forecast)
 library(plotly)
 library(glue)
-source("dataPreview.R")
-source("histogram.R")
-source("var_vs_time.R")
-source("bivariate_plot.R")
-source("NEE_bivariate.R")
-source("NEE_time_plot.R")
+
 
 function(input, output, session){
   
@@ -32,9 +27,9 @@ function(input, output, session){
   
           # ----------------------------------------------------------------#
   # load data on push load_data
-  start_path = "data/processed_data/"
 
-  data <- data_preview_server(id = "data_vars", start_path)
+  data <- data_preview_server(id = "data_vars", start_path = "data/processed_data/")
+
 
   
   # Getting head table 
@@ -51,12 +46,11 @@ function(input, output, session){
     hist_plt()
   })
   
+  vvt_plt <- plot_vvt_server(id = "time_plot", data = data())
   
-  #vvt_plt <- plot_var_vs_time_server(id = "time_plot", variables = variables, data = data())
-  
-  #output$vvt_plt_vs_time <- renderPlotly({
-  #  vvt_plt()
-  #})
+  output$vvt_plt <- renderPlotly({
+    vvt_plt()
+  })
   
   pairplot <- bivariate_server(id = "bivar_plot", variables = variables, data = data())
   
@@ -67,7 +61,7 @@ function(input, output, session){
   
              # ----------------------------------------------------------------#
   
-  nee_data <- data_preview_server(id = "nee_data_vars", start_path)
+  nee_data <- data_preview_server(id = "nee_data_vars", start_path = "data/processed_data/")
   # Getting head table 
   # TODO: Control number of lines 
   output$nee_preview <- renderTable({
@@ -88,5 +82,6 @@ function(input, output, session){
     suppressWarnings(nee_bivar_plt())
   })
   
-  
+  output$sumtab <- renderText({"Placeholder text for summary table"})
+  output$sumplot <- renderText({"Placeholder plot for summary table"})
 }
