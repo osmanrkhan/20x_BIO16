@@ -24,13 +24,14 @@ function(input, output, session){
                             "Soil Moisture" = "Vol.W.C",
                             "Relative Humidity" = "RH")
   eddy_cov_time_variables = list("Julian Day" = "JD", "Month" = "DT", "Hours of Day" =  "HM")
+  separateby = list("Seasons" = "season", "Time Of Day" = "timeofday", "No Separation" = "none")
   
-          # ----------------------------------------------------------------#
+  # ----------------------------------------------------------------#
   # load data on push load_data
-
+  
   data <- data_preview_server(id = "data_vars", start_path = "data/processed_data/")
-
-
+  
+  
   
   # Getting head table 
   # TODO: Control number of lines 
@@ -59,7 +60,7 @@ function(input, output, session){
     suppressWarnings(pairplot$plot)
   })
   
-             # ----------------------------------------------------------------#
+  # ----------------------------------------------------------------#
   
   nee_data <- data_preview_server(id = "nee_data_vars", start_path = "data/processed_data/")
   # Getting head table 
@@ -76,7 +77,7 @@ function(input, output, session){
     suppressWarnings(nee_time_plt())
   })
   
-  nee_bivar_plt <- NEE_bivar_server(id = "NEE_bivariate", variables = eddy_cov_variables, data = nee_data())
+  nee_bivar_plt <- NEE_bivar_server(id = "NEE_bivariate", variables = eddy_cov_variables, data = nee_data(),separateby)
   
   output$NEE_bivariate_plot <- renderPlotly({
     suppressWarnings(nee_bivar_plt())

@@ -25,14 +25,11 @@ NEE_time_plot_server <- function(id, data, x_variables, y_variables){
       sk_plt <- eventReactive(input$load,{
         form_ylabel <- names(y_variables)[which(y_variables == input$yvar)]
         form_xlabel <- names(x_variables)[which(x_variables == input$xvar)]
-    
-        x = pull(data, input$xvar)
-        y = pull(data, input$yvar)
-          
-        plot <- plot_ly(type = "scatter", mode = "markers") %>% 
-          add_markers(x = ~x  , y = ~y) %>% 
-          layout(xaxis = list(title = form_xlabel), yaxis = list(title = form_ylabel), 
-                 title = glue("{yvar} vs {xvar}", yvar = form_ylabel, xvar = form_xlabel))
+        
+        plt <- ggplot(data = data, aes_string( x = input$xvar, y=input$yvar))+ geom_point() +
+          labs(x=form_xlabel, y = form_ylabel) + ggtitle(glue("{yvar} Vs {xvar}", xvar =  form_xlabel, 
+                                                              yvar = form_ylabel)) +
+        theme_bw() + theme(plot.title = element_text(hjust = 0.5))
         
       })
       

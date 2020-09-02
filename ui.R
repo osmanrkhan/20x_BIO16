@@ -21,7 +21,8 @@ eddy_cov_variables = list("NEE" = "NEE",
                           "Photosynthetically Active Radiation" = "PPFD_in",
                           "Soil Moisture" = "Vol.W.C",
                           "Relative Humidity" = "RH")
-eddy_cov_time_variables = list("Julian Day" = "JD", "Month" = "DT", "Hours of Day" =  "HM")
+eddy_cov_time_variables = list("Julian Day" = "JD", "Time of Day" =  "hrmm")
+separateby = list("Seasons" = "season", "Time Of Day" = "timeofday", "No Separation" = "none")
 
 # ui elements 
 fluidPage(
@@ -122,7 +123,7 @@ fluidPage(
   h3("NEE Bivariate plots"),
   sidebarLayout(
     sidebarPanel(
-      NEE_bivar_ui("NEE_bivariate", eddy_cov_variables )
+      NEE_bivar_ui("NEE_bivariate", eddy_cov_variables, separateby)
     ),
     mainPanel(
       plotlyOutput("NEE_bivariate_plot")
