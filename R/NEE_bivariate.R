@@ -31,7 +31,7 @@ NEE_bivar_server <- function(id, data, variables, separation_options){
         form_label <- names(variables)[which(variables == input$var)]
         
         if(grepl(input$separation, "none")){
-          plt <- ggplot(data = data, aes_string( x = input$var, y="NEE"))+ geom_point() +
+          plt <- ggplot(data = data, aes_string( x = input$var, y="NEE"))+ geom_point(color="#E69F00") +
             labs(x=form_label, y = "NEE") + ggtitle(glue("NEE Vs {yvar}", yvar = form_label)) +  theme_bw()+
             theme(plot.title = element_text(hjust = 0.5))
           

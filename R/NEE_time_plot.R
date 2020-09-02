@@ -26,7 +26,7 @@ NEE_time_plot_server <- function(id, data, x_variables, y_variables){
         form_ylabel <- names(y_variables)[which(y_variables == input$yvar)]
         form_xlabel <- names(x_variables)[which(x_variables == input$xvar)]
         
-        plt <- ggplot(data = data, aes_string( x = input$xvar, y=input$yvar))+ geom_point() +
+        plt <- ggplot(data = data, aes_string( x = input$xvar, y=input$yvar))+ geom_point(color="#56B4E9") +
           labs(x=form_xlabel, y = form_ylabel) + ggtitle(glue("{yvar} Vs {xvar}", xvar =  form_xlabel, 
                                                               yvar = form_ylabel)) +
           theme_bw() + theme(plot.title = element_text(hjust = 0.5))
