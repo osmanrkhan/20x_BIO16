@@ -69,7 +69,7 @@ fluidPage(
   ),
   
   # Variable vs time  
-  h3("Variable vs Time"),
+  #h3("Variable vs Time"),
   #sidebarLayout(
   #  sidebarPanel(
   #    plot_var_vs_time_ui("time_plot")

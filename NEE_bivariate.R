@@ -7,7 +7,7 @@ NEE_bivar_ui <- function(id, variables){
                 choices = variables,
                 selected = 1),
     radioButtons(ns("separation"), h4("Separate by"),
-                 choices = list("Seasons" = "JD_c", "Daily" = "HM_c", "No Separation" = "none"),
+                 choices = list("Seasons" = "JD_c", "Time Of Day" = "HM_c", "No Separation" = "none"),
                  selected = "none"),
     actionButton(ns("load"), "Load Graph")
   )
