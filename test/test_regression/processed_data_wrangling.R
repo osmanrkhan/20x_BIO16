@@ -3,7 +3,7 @@ library(readxl)
 library(glue)
 library(lubridate)
 
-data <- read.csv(file = "data/raw_data/Silas_2018.csv")
+data <- read.csv(file = "data/raw_data/Silas Little Eddy Covariance Data/Silas_2018.csv")
 
 generate_hrmm <- function(date){
   minute <- ifelse(as.numeric(minute(date)) == 0, 0, 0.5) # if minute = 30, then it's half of an hour
@@ -13,7 +13,14 @@ generate_hrmm <- function(date){
 
 data <- data %>% mutate(HR.MIN = sprintf("%04d", HR.MIN)) %>% 
   mutate(date = glue("{year}-{md} {hm}", year = Year, md = mm.dd, hm = HR.MIN)) %>% # glue columns together
-  mutate(date = as.POSIXct(strptime(date, format = "%Y-%d-%b %H%M"))) %>% # convert to POSIX time 
+  mutate(date = as.POSIXct(strptime(date, format = "%Y-%d-%b %H%M", tz = "EST"))) # convert to POSIX time
+
+for (i in 1:(nrow(data)-1)){
+  data$date[i+1] <- data$date[i] + minutes(30) 
+}
+
+
+data <- data %>% 
   mutate(hrmm = generate_hrmm(date)) %>% # generate a proper hr:min column
   mutate(season =  ifelse(JD>145 & JD<300,"GS", "W")) %>% # defined season 
   mutate(timeofday = ifelse(hrmm>8 & hrmm<20,"Day", "Night")) %>%
@@ -22,7 +29,5 @@ data <- data %>% mutate(HR.MIN = sprintf("%04d", HR.MIN)) %>%
 
 
 saveRDS(data, file = "data/processed_data/silas_little_2018.rds")
-
-
 
 

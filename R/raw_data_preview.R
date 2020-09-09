@@ -7,8 +7,8 @@ data_preview_var_ui <- function(id, datasets, site){
   tagList(
     selectInput(ns("site"), h5(strong("Select site to view data")), choices = site, selected = site[[1]]),
     selectInput(ns("dataset"), h5(strong("Select the data set available for your site of interest")),
-                choices = datasets, selected = datasets[[1]]),
-    actionButton(inputId = ns("load"), "Click to load data")
+                choices = datasets, selected = datasets[[1]])
+    #actionButton(inputId = ns("load"), "Click to load data")
   )
 }
 
@@ -20,16 +20,16 @@ data_preview_server <- function(id, start_path) {
     id,
     function(input, output, session){
       #finding the path
-      path <- reactive({
-        req(input$dataset)
-        glue("{start_path}{site}_{dataset}.rds", start_path = start_path, site = input$site, 
-             dataset = input$dataset)
-      })
-      
-      data <- eventReactive(eventExpr = input$load,{
-        readRDS(path())
+      data <- reactive({
+         req(input$dataset)
+         path <- glue("{start_path}{site}_{dataset}.rds", start_path = start_path, site = input$site, 
+              dataset = input$dataset)
+         readRDS(path)
+         
       })
       return(data)
+      #readRDS(file = path())
+      #print(path())
     }
   )
 }

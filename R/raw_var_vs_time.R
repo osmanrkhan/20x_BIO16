@@ -21,13 +21,13 @@ vvt_selection <- function(input){
 #' Function to generate the plot using a skeleton plot, data and input
 #' @param input The input wrapped inside a server function
 #' @param data The data set 
-generate_vvtplt <- function(id, input, output, session, title = "Variable vs Time", data){
+generate_vvtplt <- function(id, input, output, session, title = "Variable vs Time", data, varlist){
   # first, generate the skeleton plot 
   sk_plt <- plot_ly(data = data, height = 600) %>%
     layout(title = title, xaxis = list(title = "Time"))
   # if the length of input is 
   if (length(input$vvt) == 1){
-    series <- get_var_fullname(input$vvt)
+    series <- get_var_fullname(input$vvt, varlist = varlist)
     y_dat <- pull(data, input$vvt)
     sk_plt <- sk_plt %>% add_lines(x = ~time, y = y_dat, name = series)
   } else {
@@ -42,11 +42,11 @@ generate_vvtplt <- function(id, input, output, session, title = "Variable vs Tim
     if (length(winds) >= 1 && length(non_winds) > 0){
       # for each wind variable, add a line corresponding
       for (i in 1:length(winds)){
-        series_name <- get_var_fullname(input$vvt[winds][i])
+        series_name <- get_var_fullname(input$vvt[winds][i], varlist =  varlist)
         y_dat <- pull(data, input$vvt[winds][i])
         sk_plt <- sk_plt %>% add_lines(y = y_dat, name = series_name, x = ~time) 
       }
-      non_wind_series <- names(variables)[which(variables == input$vvt[non_winds])]
+      non_wind_series <- names(varlist)[which(varlist == input$vvt[non_winds])]
       non_wind_dat <- pull(data, input$vvt[non_winds][1]) # get y-axis
       sk_plt <- sk_plt %>% add_lines(y = non_wind_dat, x = ~time, yaxis = "y2", name = non_wind_series)
       y_axis1 <- list(side = "left", title = "Wind Speed (m/s)")
@@ -55,8 +55,8 @@ generate_vvtplt <- function(id, input, output, session, title = "Variable vs Tim
     } else if (length(winds) == 0 && length(non_winds) > 0){
       # this situation is when there are no wind variables and maximum 2 non-wind variables 
       # getting the name of the series 
-      series_1 <- get_var_fullname(input$vvt[non_winds][1])
-      series_2 <- get_var_fullname(input$vvt[non_winds][2])
+      series_1 <- get_var_fullname(input$vvt[non_winds][1], varlist = varlist)
+      series_2 <- get_var_fullname(input$vvt[non_winds][2], varlist = varlist)
       # adding plots one at a time 
       sk_plt <- sk_plt %>% add_lines(y = pull(data, input$vvt[non_winds][1]), x=~time, name = series_1) %>%
         add_lines(y = pull(data, input$vvt[non_winds][2]), x = ~time, yaxis = "y2", name = series_2)
@@ -67,7 +67,7 @@ generate_vvtplt <- function(id, input, output, session, title = "Variable vs Tim
     } else if (length(winds) > 0 && length(non_winds) == 0){
       # this situation is where there are only wind variables 
       for (i in 1:length(winds)){
-        series_name <- get_var_fullname(input$vvt[winds][i])
+        series_name <- get_var_fullname(input$vvt[winds][i], varlist = varlist)
         y_dat <- pull(data, input$vvt[winds][i])
         sk_plt <- sk_plt %>% add_lines(y = y_dat, name = series_name, x = ~time)
       }
@@ -103,7 +103,7 @@ generate_vvtplt <- function(id, input, output, session, title = "Variable vs Tim
 plot_vvt_ui <- function(id){
   ns <- NS(id)
   tagList(
-    checkboxGroupInput(ns("vvt"), h5("Select variable to plot versus time"),
+    checkboxGroupInput(ns("vvt"), h5(strong("Select variable to plot versus time")),
                        choices = list( "Vertical Wind Speed" = "w" , 
                                        "Horizontal Wind Speed (North)" = "v" , 
                                        "Horizontal Wind Speed (East)" ="u",
@@ -118,7 +118,7 @@ plot_vvt_ui <- function(id){
 }
 
 
-plot_vvt_server <- function(id, data){
+plot_vvt_server <- function(id, data, varlist){
   moduleServer(
     id,
     function(input, output, session){
@@ -129,15 +129,15 @@ plot_vvt_server <- function(id, data){
         # pipe input and data into generate plot 
         if (input$season == 1){
           data <- data %>% filter(season == "summer")
-          generate_vvtplt(id, input, output, session, data = data)
+          generate_vvtplt(id, input, output, session, data = data, varlist = varlist)
         } else if (input$season == 2){
           data <- data %>% filter(season == "winter")
-          generate_vvtplt(id, input, output, session, data = data)
+          generate_vvtplt(id, input, output, session, data = data, varlist = varlist)
         } else if (input$season == 3){
           summer_dt <- data %>% filter(season == "summer")
           winter_dt <- data %>% filter(season == "winter")
-          summer_plt <- generate_vvtplt(id, input, output, session, data = summer_dt)
-          winter_plt <- generate_vvtplt(id, input, output, session, data = winter_dt) 
+          summer_plt <- generate_vvtplt(id, input, output, session, data = summer_dt, varlist = varlist)
+          winter_plt <- generate_vvtplt(id, input, output, session, data = winter_dt, varlist = varlist) 
 
           
           comb <- subplot(winter_plt, summer_plt, nrows = 2, margin = c(0,0,0.2,0.2),
