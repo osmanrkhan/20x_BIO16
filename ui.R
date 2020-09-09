@@ -156,7 +156,7 @@ navbarPage("Eddy Covariance Lab",
               # Regression section
               h3("Building regression model"),
               regression_ui("reg_select", full_variables)
-            ),
+            )
           ) # end of tabset panel 
         ) # end of fluid page --------------------------
     ) # end of processed data tab panel -------------------

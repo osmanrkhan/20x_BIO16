@@ -153,7 +153,7 @@ gap_filling <- function(data, formula){
     geom_text(aes(label = round(NEE,2), x = season, y = NEE/2), size = 4, position = position_dodge(width = 0.8), 
               vjust = 0, hjust = 0.5) + 
     theme_bw() + scale_fill_brewer(palette = "Dark2") +
-    labs(x = "Season", y = "Net Ecosystem Exchange", 
+    labs(x = "Season", y = "Net Ecosystem Exchange", fill = "Time of Day", 
          title = glue("Total NEE: {value}", value = round(sum(combined$NEE),2)),
          subtitle = glue("NEE in Winter Season: {winter}; NEE in Growing Season: {gs}",
                          winter = round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2),

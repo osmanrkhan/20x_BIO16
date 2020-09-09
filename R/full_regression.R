@@ -61,7 +61,7 @@ regression_ui <- function(id, variables){
         actionButton(ns("add_term"), "Add term to model"),
         actionButton(ns("reset"), "Reset Model"),
         actionButton(ns("fit"), "Fit Model"),
-        actionButton(ns("export"), "Export Model")
+        actionButton(ns("gapfill"), "Gapfill missing NEE values")
       ), 
       mainPanel(
         tabsetPanel(
@@ -78,6 +78,9 @@ regression_ui <- function(id, variables){
             fluidRow(
               column(12, verbatimTextOutput(ns("mod_summary")))
             )
+          )),
+          tabPanel("Gapfilling", fluidPage(
+            plotOutput(ns("nee_plt"))
           ))
         )
       )
@@ -177,7 +180,7 @@ regression_server <- function(id, data){
       model_plots <- reactiveValues(
         oos_plot = NULL,
         fit_plot = NULL,
-        mod_summary = NULL  
+        mod_summary = NULL
       )
       # If the fit button was pressed, fill up the entire reactive value list of model_plots
       # see function oos_prediction and fit_eval for more documentation 
@@ -213,12 +216,12 @@ regression_server <- function(id, data){
           model_plots$mod_summary
         }
       ) # end render print mod summary
-      
-      export <- reactiveValues(mod = NULL)
-      observeEvent(input$export,
-        export$mod <- model()
-      )
-      return(reactive({export$mod}))
+      nee_plot <- eventReactive(input$gapfill,{
+        gap_filling(data = data, formula = model())
+      })
+      output$nee_plt <- renderPlot({
+        nee_plot()
+      })
     } # end input output function 
   ) # end module server
 } # end regression_server function
