@@ -4,7 +4,7 @@
 ## R Shiny structure
 This is a quick overview on the structure of r shiny. This is meant to be introductory, please read the references for a clearer picture.
 
-- R shiny needs a ui and server function to work. The ui function is responsible for creating the views for each input (also called widgets) and output. The server app is responsible for building the output objects usually by using the widget values. [Shiny Tutorials](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1) read through lesson 4.
+- R shiny needs a ui and server function to work. The ui function is responsible for creating the views for each input (also called widgets) and output. The server app is responsible for building the output objects usually by using the widget values. Basic examples can be found at[Shiny Tutorials](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1) read through lesson 4.
 - Input and output IDs in Shiny apps share a global namespace, meaning, each ID must be unique across the entire app. However, when modularizing the application, shiny gives you the possibility to create a namespace for each module. In consequence, the programmer doesn't have to worry about uniqueness of input/output ids between modules. For more information about modules, please read [shiny module](https://shiny.rstudio.com/articles/modules.html).
 
 ## Raw Data section
