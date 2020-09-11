@@ -24,7 +24,7 @@ data_preview_var_ui <- function(id, datasets, site)
 #' @return the loaded data
 data_preview_server <- function(id, start_path)
 ```
-The `data_preview_var_ui` function is to create an ui that lets the user choose the dataset that they want to work with. The site and datasets variables are used to create 2 select input options [selectInput()](https://shiny.rstudio.com/reference/shiny/1.5.0/selectInput.html) that allows the user to select its dataset. The function return a list of shiny inputs to the main ui file.
+The `data_preview_var_ui` function is to create an ui that lets the user choose the dataset that they want to work with. The site and datasets variables are used to create 2 select input options ([selectInput()](https://shiny.rstudio.com/reference/shiny/1.5.0/selectInput.html)) that allows the user to select its dataset. The function return a list of shiny inputs to the main ui file.
 
  The `data_preview_var_server` function constructs the data path to the data and loads the data by calling readRDS. At the end the data is return to the server
 
