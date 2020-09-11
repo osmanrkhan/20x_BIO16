@@ -1,12 +1,11 @@
 # EddyCovariance (Bio 16 Laboratory) Web Application Implementation
 ### Quang Mnguyen and Pierre Desvallons, DIFUSE September 2020.
 
-## R Shiny flow
-This is a quick overview on the flow of data structure through r shiny. This is meant to be introductory, please read the references for a clearer picture.
+## R Shiny structure
+This is a quick overview on the structure of r shiny. This is meant to be introductory, please read the references for a clearer picture.
 
-1. R shiny has many types input/output functions that programmers can call depending on their need. Each input/output function takes a string id that shiny uses to reference to that input/output. Because of that, Shiny requires the ids to be unique. For more on input/output function(r shiny link to i/o functions).
-2. The ui function is responsible for creating the views for each input and output. Meanwhile, the inputs/outputs are passed in to the server as a named list, where the names are the ids used in the ui.
-3. The id parameter is used to link the ui with its server. The id is also used to create a namespace for the module, so that the programmer doesn't have to worry about uniqueness of input/output ids between modules. For more information about that, please read shiny module(link).
+- R shiny needs a ui and server function to work. The ui function is responsible for creating the views for each input (also called widgets) and output. The server app is responsible for building the output objects usually by using the widget values.[tutorials](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1) read through lesson 4.
+- Input and output IDs in Shiny apps share a global namespace, meaning, each ID must be unique across the entire app. However, when modularizing the application, shiny gives you the possibility to create a namespace for each module. In consequence, the programmer doesn't have to worry about uniqueness of input/output ids between modules. For more information about modules, please read [shiny module](https://shiny.rstudio.com/articles/modules.html).
 
 ## Raw Data section
 It is assumed that the programmer knows the names of each column in the datasets and is able to create a global named list for each of the column of the dataset.
