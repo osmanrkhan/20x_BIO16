@@ -50,7 +50,7 @@ navbarPage("Eddy Covariance Lab",
                sidebarPanel(
                  h5("In this section, you can observe the distribution of values by plotting a histogram of the variable. 
                     You can plot histograms for each season, or super impose them on the same plot"),
-                 histogram_ui(id = "histo_plot")
+                 histogram_ui(id = "histo_plot", variables = raw_variables)
                ),
                mainPanel(
                  plotlyOutput("histogram")
@@ -96,7 +96,7 @@ navbarPage("Eddy Covariance Lab",
                            using the button ", strong("Load Complete Bivariate Plot"))
                  ),
                  h5("Using the option ", strong("Select Time Frame for Time Plots"), " you can change the time step for the slider available in the first mode mentioned above"),
-                 bivariate_ui("bivar_plot")
+                 bivariate_ui("bivar_plot", raw_variables, raw_variables)
                ),
                mainPanel(
                  plotlyOutput("pairplot")

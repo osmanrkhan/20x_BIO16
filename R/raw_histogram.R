@@ -2,17 +2,14 @@ library(shiny)
 
 #' lets the user select the variables to be graphed
 #' param @id: to link input and output
-histogram_ui <- function(id){
+#' param @variables: a named list of variables to choose from
+#' @return a taglist of input function
+histogram_ui <- function(id, variables){
   ns <- NS(id)
   tagList(
     selectInput(ns("histogram_var"), h5(strong("Select variable to plot histogram")), 
-                choices = list( "Vertical Wind Speed" = "w" , 
-                                "Horizontal Wind Speed (North)" = "v" , 
-                                "Horizontal Wind Speed (East)" ="u",
-                                "CO2" = "CO2",
-                                "Water Vapor" = "H2O",
-                                "Air Temperature" = "airtemp"),
-                selected = "CO2"),
+                choices = variables ,
+                selected = variables[[1]]),
     
     sliderInput(ns("histogram_bins"), h5(strong("Select the number of bins, higher bins means more
                                          'columns' and therefore a denser histogram")),
@@ -28,7 +25,8 @@ histogram_ui <- function(id){
 #' Plot the histogram for the file chosen
 #' @param id: to link the input and the output 
 #' @param variables: the variables to plot -- used to get nice labels on axes
-#' @param data: the data to work with -- usually a reactive object 
+#' @param data: the data to work with -- usually a reactive object
+#' @return a plotly object 
 
 histogram_server <- function(id, variables, data) {
   moduleServer(

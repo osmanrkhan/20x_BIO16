@@ -1,7 +1,10 @@
 library(shiny)
 
-#lets the user select the site, season and date of the file
-#param @id: to link input and output
+#' lets the user select the site, season and date of the file
+#' param @id: a string to link input and output
+#' @datasets: a named list of the columns of the data 
+#' @site: a named list of possible sites that the user can choose 
+#' @return a taglist of input
 data_preview_var_ui <- function(id, datasets, site){
   ns <- NS(id)
   tagList(
@@ -15,6 +18,7 @@ data_preview_var_ui <- function(id, datasets, site){
 #' constructs the path to the file chosen
 #' param @id: to link the input and the output
 #' param @start_path: starting path to be added to the full path
+#' @return the loaded data 
 data_preview_server <- function(id, start_path) {
   moduleServer(
     id,

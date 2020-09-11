@@ -1,24 +1,14 @@
 #' lets the user select the variables to be graphed
 #' param @id: to link input and output
-bivariate_ui <- function(id){
+bivariate_ui <- function(id, xvar, yvar){
   ns <- NS(id)
   tagList(
     selectInput(ns("pairplot_xvar"), "Select X Axis", 
-                choices = list( "Vertical Wind Speed" = "w" , 
-                                "Horizontal Wind Speed (North)" = "v" , 
-                                "Horizontal Wind Speed (East)" ="u",
-                                "CO2" = "CO2",
-                                "Water Vapor" = "H2O",
-                                "Air Temperature" = "airtemp"),
-                selected = "w"),
+                choices = xvar,
+                selected = xvar[[1]]),
     selectInput(ns("pairplot_yvar"), "Select Y Axis", 
-                choices = list( "Vertical Wind Speed" = "w" , 
-                                "Horizontal Wind Speed (North)" = "v" , 
-                                "Horizontal Wind Speed (East)" ="u",
-                                "CO2" = "CO2",
-                                "Water Vapor" = "H2O",
-                                "Air Temperature" = "airtemp"),
-                selected = "v"),
+                choices = yvar,
+                selected = yvar[[2]]),
     selectInput(ns("frame"), "Select Time Frame for Time Plots",
                 choices = list("30 mintes" = 2, "1 hour" = 1)),
     actionButton(ns("load_time"), "Load Bivariate Plot by Time"),
