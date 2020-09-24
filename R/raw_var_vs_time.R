@@ -100,20 +100,34 @@ generate_vvtplt <- function(id, input, output, session, title = "Variable vs Tim
 
 #' lets the user select the variables to be graphed
 #' @param id: to link input and output
-plot_vvt_ui <- function(id){
+plot_vvt_ui <- function(id, variables){
   ns <- NS(id)
   tagList(
-    checkboxGroupInput(ns("vvt"), h5(strong("Select variable to plot versus time")),
-                       choices = list( "Vertical Wind Speed" = "w" , 
-                                       "Horizontal Wind Speed (North)" = "v" , 
-                                       "Horizontal Wind Speed (East)" ="u",
-                                       "CO2" = "CO2",
-                                       "Water Vapor" = "H2O",
-                                       "Air Temperature" = "airtemp"),
-                       selected = "CO2"),
-    selectInput(ns("season"), h5(strong("Selecting Season")),
-                choices = list("Summer" = 1, "Winter" = 2, "Both" = 3)),
-    actionButton(ns("load_vvt"), "Load graph")
+    h3("Variable vs Time"),
+    sidebarLayout(
+      sidebarPanel(
+        h5("In this section, you can observe how the variable changes as a function of time across the seasons. This is an 
+                    interactive plot that allows you to also use a slider to observe the data at pre-specified or custom timescales"), 
+        h5("On top of each plot there are 3 buttons (1 hour, 30 minutes, all) that represents the different scales you can 
+                    observe the plot. "),
+        tags$ul(
+          tags$li(strong("all"), " allows you to see the zoomed out plot encompassing the entire day"),
+          tags$li(strong("1 hour"), " allows you to restrict the zoom (the area between the two bars on the bottom panel of each plot) to
+                           a 1 hour interval"),
+          tags$li(strong("30 minutes"), " allows you to restrict the zoom (the area between the two bars on the bottom panel of each plot) to
+                           a 30 minute interval")
+        ),
+        checkboxGroupInput(ns("vvt"), h5(strong("Select variable to plot versus time")),
+                           choices =variables,
+                           selected = variables[1]),
+        selectInput(ns("season"), h5(strong("Selecting Season")),
+                    choices = list("Summer" = 1, "Winter" = 2, "Both" = 3)),
+        actionButton(ns("load_vvt"), "Load graph")
+      ),
+      mainPanel(
+        plotlyOutput(ns("vvt_plt"))
+      )
+    )
   )
 }
 
@@ -144,8 +158,10 @@ plot_vvt_server <- function(id, data, varlist){
                           titleX = F, titleY = F) %>% 
             layout(title = "Variable vs Time for Winter (top) and Summer (bottom)")
         }
-      }) 
-      return(vvt_plt)
+      })
+      output$vvt_plt <- renderPlotly({
+        vvt_plt()
+      })
     }
   )
 }

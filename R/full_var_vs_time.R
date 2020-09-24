@@ -3,13 +3,23 @@
 full_time_plot_ui <- function(id, y_variables, x_variables){
   ns <- NS(id)
   tagList(
-    selectInput(ns("xvar"), h5(strong("Select which time scale is of interest")), 
-                choices = x_variables,
-                selected = 1),
-    selectInput(ns("yvar"), h5(strong("Select your variable")), 
-                choices = y_variables,
-                selected = 1),
-    actionButton(ns("load"), "Load Graph")
+    h3("Observing variables changing by different units of time"),
+    sidebarLayout(
+      sidebarPanel(
+        h5("In this section you can observe how different meterological variables of interest change over time. 
+                     You can plot changes by day as a count from 1 to 365, by season (Winter and Growing Season), by hour of day, or by time of day (Night vs Day)"),
+        selectInput(ns("xvar"), h5(strong("Select which time scale is of interest")), 
+                    choices = x_variables,
+                    selected = 1),
+        selectInput(ns("yvar"), h5(strong("Select your variable")), 
+                    choices = y_variables,
+                    selected = 1),
+        actionButton(ns("load"), "Load Graph")
+      ),
+      mainPanel(
+        plotOutput(ns("full_time_plot"))
+      )
+    )
   )
 }
 
@@ -31,6 +41,8 @@ full_time_plot_server <- function(id, data, varlist){
           plt + geom_point(color = "orange", size = 1.5) + stat_smooth()
         }
       })
-      return(plot)
+      output$full_time_plot <- renderPlot({
+        plot()
+      })
     })
 }

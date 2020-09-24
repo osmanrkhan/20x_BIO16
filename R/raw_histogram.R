@@ -7,18 +7,28 @@ library(shiny)
 histogram_ui <- function(id, variables){
   ns <- NS(id)
   tagList(
-    selectInput(ns("histogram_var"), h5(strong("Select variable to plot histogram")), 
-                choices = variables ,
-                selected = variables[[1]]),
-    
-    sliderInput(ns("histogram_bins"), h5(strong("Select the number of bins, higher bins means more
+    h3("Histogram"),
+    sidebarLayout(
+      sidebarPanel(
+        h5("In this section, you can observe the distribution of values by plotting a histogram of the variable. 
+                    You can plot histograms for each season, or super impose them on the same plot"),
+        selectInput(ns("histogram_var"), h5(strong("Select variable to plot histogram")), 
+                    choices = variables ,
+                    selected = variables[[1]]),
+        
+        sliderInput(ns("histogram_bins"), h5(strong("Select the number of bins, higher bins means more
                                          'columns' and therefore a denser histogram")),
-                min = 0, max = 100, value = 50),
-    selectInput(ns("season"), h5(strong("Select season to plot. You can select 'summer', 'winter', 
+                    min = 0, max = 100, value = 50),
+        selectInput(ns("season"), h5(strong("Select season to plot. You can select 'summer', 'winter', 
                                  as well as seeing both plots overlaid using the 'both' option")), list("Summer" = "summer", 
-                                                        "Winter" = "winter", 
-                                                        "Both" = "both")),
-    actionButton(ns("load_hist"), "Click to load graph")
+                                                                                                        "Winter" = "winter", 
+                                                                                                        "Both" = "both")),
+        actionButton(ns("load_hist"), "Click to load graph")
+      ),
+      mainPanel(
+        plotlyOutput(ns("histogram"))
+      )
+    )
   )
 }
 
@@ -53,6 +63,10 @@ histogram_server <- function(id, variables, data) {
                       xaxis = list(title = "Values"), yaxis = list(title = "Percentages"))
         plt
       })
+      output$histogram <- renderPlotly({
+        hist_plt()
+      })
+      
       return(hist_plt)
     }
   )

@@ -3,20 +3,37 @@
 bivariate_ui <- function(id, xvar, yvar){
   ns <- NS(id)
   tagList(
-    selectInput(ns("pairplot_xvar"), "Select X Axis", 
-                choices = xvar,
-                selected = xvar[[1]]),
-    selectInput(ns("pairplot_yvar"), "Select Y Axis", 
-                choices = yvar,
-                selected = yvar[[2]]),
-    selectInput(ns("frame"), "Select Time Frame for Time Plots",
-                choices = list("30 mintes" = 2, "1 hour" = 1)),
-    actionButton(ns("load_time"), "Load Bivariate Plot by Time"),
-    actionButton(ns("load_all"), "Load Complete Bivariate Plot")  
+    h3("Bivariate plots"),
+    sidebarLayout(
+      sidebarPanel(
+        h5("In this section, you can see the observe the relationship between two variables in the raw data using bivarate plot.  
+                    There are two modes: "), 
+        tags$ul(
+          tags$li("First, you can observe how the relationship (covariance) changes through time using a slider. This plot
+                           can be loaded using the button ", strong("Load Bivariate Plot by Time")),
+          tags$li("Second, you can observe the relationship using the complete raw data throughout the day. This plot can be loaded
+                           using the button ", strong("Load Complete Bivariate Plot"))
+        ),
+        h5("Using the option ", strong("Select Time Frame for Time Plots"), " you can change the time step for the slider available in the first mode mentioned above"),
+        selectInput(ns("pairplot_xvar"), "Select X Axis", 
+                    choices = xvar,
+                    selected = xvar[[1]]),
+        selectInput(ns("pairplot_yvar"), "Select Y Axis", 
+                    choices = yvar,
+                    selected = yvar[[2]]),
+        selectInput(ns("frame"), "Select Time Frame for Time Plots",
+                    choices = list("30 minutes" = 2, "1 hour" = 1)),
+        actionButton(ns("load_time"), "Load Bivariate Plot by Time"),
+        actionButton(ns("load_all"), "Load Complete Bivariate Plot")
+      ),
+      mainPanel(
+        plotlyOutput(ns("pairplot"))
+      )
+    )
   )
 }
 
-#' either plots a whole bivariate plot or an animation where each frame contais 30 mn of data
+#' either plots a whole bivariate plot or an animation.
 #' param @id: to link the input and the output
 #' param @variables: the variables to plot
 #' param @data: the data to work with
@@ -25,7 +42,7 @@ bivariate_server <- function(id, variables, data) {
   moduleServer(
     id,
     function(input, output, session){
-      # pair plot reactive values
+      # pairplot 
       pairplot <- reactiveValues(plot = NULL)
       
       # Observe event for pushing one of the buttons
@@ -33,16 +50,17 @@ bivariate_server <- function(id, variables, data) {
         form_label_x <- names(variables)[which(variables == input$pairplot_xvar)] # label for x axis
         form_label_y <- names(variables)[which(variables == input$pairplot_yvar)] # label for y axis
         
+        #
         frame <- as.double(input$frame) # what is the time frame
-        each <- 3600/frame # divide hour by time frame 
+        num_frames = 24*frame # number of frames
+        points_per_frame <- 3600/frame # represents the number of datapoints for each frame
         aval <- list()
         mod <- list()
-        max_num = 24*frame # 24 times number of frames
         
-        for(step in 1:max_num){ # for each step 
+        for(step in 1:num_frames){ # for each step 
           # get the data at each time step
-          x <- pull(data, input$pairplot_xvar)[seq((step-1)*(each) + 1, length = each)]  
-          y <- pull(data, input$pairplot_yvar)[seq((step-1)*(each) + 1, length = each)]
+          x <- pull(data, input$pairplot_xvar)[seq((step-1)*(points_per_frame) + 1, length = points_per_frame)]  
+          y <- pull(data, input$pairplot_yvar)[seq((step-1)*(points_per_frame) + 1, length = points_per_frame)]
           aval[[step]] <-list(visible = FALSE,
                               name = paste0('h = ', round(step/frame, 3)),
                               x=x,
@@ -59,7 +77,8 @@ bivariate_server <- function(id, variables, data) {
         # create steps and plot all traces
         steps <- list()
         fig <- plot_ly()
-        for (i in 1:max_num) {
+        
+        for (i in 1:num_frames) {
           fig <- add_markers(fig,x=aval[i][[1]]$x,  y=aval[i][[1]]$y, visible = aval[i][[1]]$visible, 
                              name = aval[i][[1]]$name, type = 'scatter', marker  = list(color = 'royalblue'), hoverinfo = 'name')
           name = " hours"
@@ -73,7 +92,7 @@ bivariate_server <- function(id, variables, data) {
           step$args[[2]][i] = TRUE  
           steps[[i]] = step 
         }  
-        for(i in 1:max_num){
+        for(i in 1:num_frames){
           fig <- add_lines(fig,x=mod[i][[1]]$x,  y=mod[i][[1]]$y, visible = mod[i][[1]]$visible, 
                            name = mod[i][[1]]$name, type = 'scattergl', 
                            line  = list(color = 'firebrick', width = 4), hoverinfo = 'name')
@@ -112,7 +131,10 @@ bivariate_server <- function(id, variables, data) {
         # adding the bivariate scatter plot and the trend line  
         pairplot$plot <- fig
       })
-      return (pairplot)
+      # render pairplot
+      output$pairplot <- renderPlotly({
+        suppressWarnings(pairplot$plot)
+      })
     }
   )
 }
