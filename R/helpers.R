@@ -1,6 +1,6 @@
-#' Variables for the raw variables section 
 library(patchwork)
 
+#' Variables for the raw variables section 
 raw_variables <- list("Vertical Wind Speed" = "w" , 
                   "Horizontal Wind Speed (North)" = "v" , 
                   "Horizontal Wind Speed (East)" ="u",
@@ -79,12 +79,150 @@ create_slider_step <- function(num_frames, time_frame){
     step <- list(args = list('visible', rep(FALSE, num_frames)), 
                  label =  paste0(round( i/time_frame, 2), name),
                  method = 'restyle')
-    step$args[[2]][i] = TRUE  
+    step$args[[1]][i] = TRUE  
     steps[[i]] = step 
   }  
   return(steps)
 }
 
+#' helper function to plot a whole bivariate plot or a bivariate plot animation through time.
+#' param @input: list of input that user has chosen (given to us by shiny).
+#' param @output: list of available ouput action (given to us by shiny).
+#' param @variables: the variables to plot.
+#' param @data: the data to work with.
+#' param @season: which season to graph
+
+plot_raw_data_bivariate <- function(input, output, variables, data, season){
+  # pairplot 
+  pairplot_summer <- reactiveValues(plot_slider = NULL, plot_full_graph = NULL)
+  pairplot_winter <- reactiveValues(plot_slider = NULL, plot_full_graph = NULL)
+  
+  # Observe event for pushing one of the buttons
+  observeEvent(input$load_time,{
+    form_label_x <- names(variables)[which(variables == input$pairplot_xvar)] # label for x axis
+    form_label_y <- names(variables)[which(variables == input$pairplot_yvar)] # label for y axis
+    
+    #
+    frame <- as.double(input$frame) # what is the time frame
+    num_frames = 24*frame # number of frames
+    points_per_frame <- 3600/frame # represents the number of datapoints for each frame
+    aval <- list()
+    mod <- list()
+    
+    for(step in 1:num_frames){ # for each step 
+      # get the data at each time step
+      x <- pull(data, input$pairplot_xvar)[seq((step-1)*(points_per_frame) + 1, length = points_per_frame)]  
+      y <- pull(data, input$pairplot_yvar)[seq((step-1)*(points_per_frame) + 1, length = points_per_frame)]
+      aval[[step]] <-list(visible = FALSE,
+                          name = paste0('h = ', round(step/frame, 3)),
+                          x=x,
+                          y=y)
+      covar <- stats::cov(x = x,y = y, method = "pearson")
+      mod[[step]] <-list(visible = FALSE,
+                         name = paste0('covariance = ', round(covar, 2)),
+                         x=x,
+                         y=fitted(lm(y ~ x)))
+    }
+    aval[1][[1]]$visible = TRUE
+    mod[1][[1]]$visible = TRUE
+    
+    # create steps and plot all traces
+    steps <- list()
+    fig <- plot_ly()
+    
+    for (i in 1:num_frames) {
+      fig <- add_markers(fig,x=aval[i][[1]]$x,  y=aval[i][[1]]$y, visible = aval[i][[1]]$visible, 
+                         name = aval[i][[1]]$name, type = 'scatter', marker  = list(color = 'royalblue'), hoverinfo = 'name')
+      name = " hours"
+      if(i<=frame){
+        name = " hour"
+      }
+      
+      step <- list(args = list('visible', rep(FALSE, length(aval))), 
+                   label =  paste0(round( i/frame, 2), name),
+                   method = 'restyle')
+      step$args[[2]][i] = TRUE  
+      steps[[i]] = step 
+    }  
+    for(i in 1:num_frames){
+      fig <- add_lines(fig,x=mod[i][[1]]$x,  y=mod[i][[1]]$y, visible = mod[i][[1]]$visible, 
+                       name = mod[i][[1]]$name, type = 'scattergl', 
+                       line  = list(color = 'firebrick', width = 4), hoverinfo = 'name')
+    }
+    
+    # add slider control to plot
+    fig <- fig %>%
+      layout(xaxis = list(title = form_label_x), yaxis = list(title = form_label_y),
+             title = glue("{xaxis} vs {yaxis}", xaxis = form_label_x, yaxis = form_label_y),
+             sliders = list(list(active = 0, currentvalue = list(prefix = "Frequency: "),
+                                 steps = steps)))
+    if(grepl(season, "summer")){
+      pairplot_summer$plot_slider <- fig
+    }
+    else if(grepl(season, "winter")){
+      pairplot_winter$plot_slider <- fig
+    }
+    
+  })
+  
+  #plot whole graph
+  observeEvent(input$load_all, {
+    form_label_x <- names(variables)[which(variables == input$pairplot_xvar)] # label for x axis
+    form_label_y <- names(variables)[which(variables == input$pairplot_yvar)] # label for y axis
+    # getting data using pull()
+    x <- pull(data,input$pairplot_xvar)
+    y <- pull(data, input$pairplot_yvar)
+    mod <- lm(y ~ x) # linear model for trendline
+    covar <-  round(stats::cor(x,y),2)
+    y2 <- c(min(fitted(mod)), max(fitted(mod)))
+    if(covar < 0){
+      y2 <- c(max(fitted(mod)), min(fitted(mod)))
+    }
+    #fig <- plot_ly() %>% 
+    # layout(title = glue("{xvar} vs {yvar}", xvar = form_label_x, yvar = form_label_y), 
+    #           xaxis = list(title = form_label_x), yaxis = list(title = form_label_y)) # getting plot labels
+    # fig <- fig %>% add_markers(x = x, y = y, type = "scattergl", name = "Bivariate", 
+    #                         marker = list(color = "royalblue")) %>% 
+    #add_lines(x = c(min(x),max(x)), y = y2, 
+    #         name = glue("Correlation: {value}", value = covar), 
+    #        line = list(color = "firebrick", width = 4)) 
+    
+    
+    # adding the bivariate scatter plot and the trend line  
+    if(grepl(season, "summer")){
+      pairplot_summer$plot_full_graph <- ggplot(data = data, aes(x = !!sym(input$pairplot_xvar), y = !!sym(input$pairplot_yvar))) + theme_bw() + labs(y = form_label_y, x = form_label_x) +               
+        geom_point(color = "orange", size = 1.5) + stat_smooth()
+    }
+    else if(grepl(season, "winter")){
+      pairplot_winter$plot_full_graph <- ggplot(data = data, aes(x = !!sym(input$pairplot_xvar), y = !!sym(input$pairplot_yvar))) + theme_bw() + labs(y = form_label_y, x = form_label_x) +               
+        geom_point(color = "orange", size = 1.5) + stat_smooth()
+    }
+  })
+  # render plots
+  
+  #summer graphs
+  if(grepl(season, "summer")){
+    #graph animation
+    output$pairplot_summer_slider <- renderPlotly({
+      suppressWarnings(pairplot_summer$plot_slider)
+    })
+    #graph bivariate plot
+    output$pairplot_summer_full_graph <- renderPlot({
+      suppressWarnings(pairplot_summer$plot_full_graph)
+    })
+  }
+  #winter graphs
+  else if(grepl(season, "winter")){
+    #graph animation
+    output$pairplot_winter_slider <- renderPlotly({
+      suppressWarnings(pairplot_winter$plot_slider)
+    })
+    #graph bivariate plot
+    output$pairplot_winter_full_graph <- renderPlot({
+      suppressWarnings(pairplot_winter$plot_full_graph)
+    })
+  }
+}
 
 #' @title Out of sample prediction models using train/test split 
 #' @param data Data of data.frame format
