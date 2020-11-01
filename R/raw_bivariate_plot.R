@@ -25,8 +25,8 @@ bivariate_ui <- function(id, xvar, yvar){
                     choices = list("30 minutes" = 2, "1 hour" = 1)),
         actionButton(ns("load_time"), "Load Bivariate Plot by Time"),
         actionButton(ns("load_all"), "Load Complete Bivariate Plot"),
-        h6("Note: when you press the load graph option, you ara graphing both
-           summer and winter graphs but it might take some time for the graph to appear")
+        h6("Note: when you press the load graph option, you are graphing both
+           summer and winter plots but it might take some time for the graph to appear.")
       ),
       mainPanel(
         navbarPage("Seasons",
