@@ -24,7 +24,8 @@ full_variables <- list(
   "Soil Moisture" = "Vol.W.C",
   "Soil Temperature" = "Soil.T",
   "Season" = "season",
-  "Time of Day" = "timeofday"
+  "Time of Day" = "timeofday",
+  "Net Ecosystem Exchange" = "NEE"
 )
 
 #' Getting full name of variables 
@@ -239,7 +240,7 @@ oos_prediction <- function(data, formula, split_prop = 3/4){
   annotation <- glue("RMSE: {rmse_val} \n Predictive R-squared: {rsq_val}", 
                      rmse_val = round(rmse_vec(truth = df$truth, estimate = df$estimate),2),
                      rsq_val = round(rsq_trad_vec(truth = df$truth, estimate = df$estimate),3))
-  plot <- ggplot(data = df, aes(x = estimate, y = truth)) + geom_point(col = "salmon", size = 2) + 
+  plot <- ggplot(data = df, aes(x = estimate, y = truth)) + geom_point(col = "steelblue", size = 2) + 
     geom_line() +
     geom_ribbon(aes(ymin = .pred_lower, ymax = .pred_upper), alpha = 0.3) + 
     stat_smooth(method = "lm", formula = y~x) + 
@@ -263,7 +264,7 @@ fit_eval <- function(data, formula){
   annotation <- glue("AIC: {aic_val} \n Adj. R-squared: {rsq_val}", 
                      aic_val = round(AIC(fit),3),
                      rsq_val = round(mod_sum$adj.r.squared,3))
-  fit_plot <- ggplot(df, aes(x = fitted, y = truth)) + geom_point(col = "salmon", size = 2) + 
+  fit_plot <- ggplot(df, aes(x = fitted, y = truth)) + geom_point(col = "steelblue", size = 2) + 
     stat_smooth(method = "lm", formula = y~x) + labs(x = "Estimate", y = "Truth", title = "Fitted values vs. True") +
     annotate("text", x = min(df$fitted), y = max(df$truth), label = annotation, hjust = 0, size = 5) +
     theme_bw()
@@ -298,7 +299,7 @@ gap_filling <- function(data, formula){
                          gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2)))
   # NEE by JD
   p3 <- combined %>% group_by(JD) %>% summarise(NEE = sum(NEE)) %>% ggplot(aes(x = JD, y = NEE)) + 
-    geom_point(color = "orange") + theme_bw() + labs(x = "Net Ecosystem Exchange", y = "Julian Day") + 
+    geom_point(color = "orange") + theme_bw() + labs(y = "Net Ecosystem Exchange", x = "Julian Day") + 
     stat_smooth()
   
   plot <- ((p1 + theme(legend.position = "none")) + p2)/p3

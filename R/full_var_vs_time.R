@@ -23,10 +23,10 @@ full_time_plot_ui <- function(id, y_variables, x_variables){
   )
 }
 
-#' returns a potly graph depending on which type of graph was selected
-#' param @id: id that connects the ui to the server
-#' param @data: the data to work with. a reactive variable
-#' param @variables: the variables to graph to make nice axis 
+#' returns a ggplot graph depending on which type of graph was selected
+#' @param id: id that connects the ui to the server
+#' @param data: the data to work with. a reactive variable
+#' @param variables: the variables to graph to make nice axis 
 full_time_plot_server <- function(id, data, varlist){
   moduleServer(
     id,
@@ -34,11 +34,12 @@ full_time_plot_server <- function(id, data, varlist){
       plot <- eventReactive(input$load,{
         ylab <- get_var_fullname(input$yvar, varlist)
         xlab <- get_var_fullname(input$xvar, varlist)
-        plt <- ggplot(data = data, aes(x = !!sym(input$xvar), y = !!sym(input$yvar))) + theme_bw() + labs(y = ylab, x = xlab)
-        if (input$xvar %in% c('season','timeofday')){
-          plt + geom_violin(aes(fill = !!sym(input$xvar))) + scale_fill_discrete(c('blue', 'orange')) 
+        plt <- ggplot(data = data, aes(x = !!sym(input$xvar), y = !!sym(input$yvar))) + theme_bw() + 
+          labs(y = ylab, x = xlab)
+        if (input$xvar %in% c("timeofday", "season")){
+          plt + geom_boxplot(aes(fill = !!sym(input$xvar)), width = 0.5)
         } else {
-          plt + geom_point(color = "orange", size = 1.5) + stat_smooth()
+          plt + geom_point(color = "steelblue", size = 1.5)
         }
       })
       output$full_time_plot <- renderPlot({

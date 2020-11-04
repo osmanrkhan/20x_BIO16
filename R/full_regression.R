@@ -150,17 +150,18 @@ regression_server <- function(id, data){
       plot <- reactive({
         x <- `^`(pull(data, input$select_var),as.numeric(input$poly))
         if (input$interaction == T){ # if there are no interaction variables 
+          xlab <- strsplit(var(),"*",fixed = T)[[1]][1]
           if (input$interact_var %in% c("season", "timeofday")){
             legend_name <- ifelse(input$interact_var == "season", "Season", "Time of Day")
             # using qplot as it's quicker to do this interactively 
             plt <- qplot(y = data$NEE, x = x, geom = "jitter", color = factor(pull(data, input$interact_var))) + 
               theme_bw() + stat_smooth(method = "lm", formula = y ~ x) +
-              labs(y = "NEE", x = var(), color = legend_name) + scale_color_viridis_d()
+              labs(y = "NEE", x = xlab, color = legend_name) + scale_color_viridis_d()
           } else {
             group <- cut(pull(data, input$interact_var), breaks = 3) %>% factor(labels = c("Low", "Medium", "High"))
             plt <- qplot(y = data$NEE, x = x, geom = "jitter", color = group) + theme_bw() + 
               stat_smooth(method = "lm", formula = y ~ x) +
-              labs(y = "NEE", x = var(), color = "Levels of Interaction Values") + 
+              labs(y = "NEE", x = xlab, color = "Levels of Interaction Values") + 
               scale_color_viridis_d()
           }
         } else {

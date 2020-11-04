@@ -10,17 +10,14 @@ library(glue)
 function(input, output, session){
   # RAW DATA SECTION ------------------------------------------------------------------####
   data <- data_preview_server(id = "data_vars", start_path = "data/processed_data/")
-
+  
   # Histogram plots  
- histogram_server(id = "histo_plot", variables = raw_variables, data = data()) 
-
-plot_vvt_server(id = "time_plot", data = data(), varlist = raw_variables)
+  histogram_server(id = "histo_plot", variables = raw_variables, data = data()) 
+  # Variable vs time plot 
+  plot_vvt_server(id = "time_plot", data = data(), varlist = raw_variables)
   
- 
-  
+  # Bivariate plot 
   pairplot <- bivariate_server(id = "bivar_plot", variables = raw_variables, data = data())
-  
-  
   
   ## FULL DATA SECTION ----------------------------------------------------------------####
   
