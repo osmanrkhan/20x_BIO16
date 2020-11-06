@@ -20,7 +20,7 @@ regression_ui <- function(id, variables){
            which can then be used to gap-fill the remaining missing NEE values"), 
         h5("First, let's select a variable in the drop down"),
         selectInput(ns("select_var"), "Select Variable",
-                    choices = variables, selected = 1),
+                    choices = variables[-which(variables %in% c("timeofday", "season"))], selected = 1),
         h5("As you select a variable, you can see the bivariate plot in the ", 
            strong("Bivariate Plot") ,
           " tab. Then, you can see the variable selected using it's label in the table 
@@ -43,13 +43,16 @@ regression_ui <- function(id, variables){
           selectInput(ns("interact_var"), "Select Variable for Interaction", 
                       choices = variables)
         ),
-        conditionalPanel(
-          condition = "input.interaction == false",
-          ns = ns,
-          radioButtons(ns("facet_by"), "Separated By", 
-                       choices = c("Season" = "season","Time of Day" = "timeofday","None" = "none"), 
-                       selected = "none")
-        ),
+        # This section below allows a radio button to show if interaction is false so that students don't have to 
+        # think of staging an interaction in order to see how the relationship changes depending on time of day or season 
+        # Temporary removed per request by instructor. 
+        # conditionalPanel(
+        #   condition = "input.interaction == false",
+        #   ns = ns,
+        #   radioButtons(ns("facet_by"), "Separated By", 
+        #                choices = c("Season" = "season","Time of Day" = "timeofday","None" = "none"), 
+        #                selected = "none")
+        # ),
         h5("Finally, with these buttons you can manipulate how to interact with the model"),
         tags$ul(
           tags$li(strong("Add term to model"), ": adds the currently staged term to the model. 

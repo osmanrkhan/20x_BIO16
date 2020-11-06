@@ -293,15 +293,18 @@ gap_filling <- function(data, formula){
               vjust = 0, hjust = 0.5) + 
     theme_bw() + scale_fill_brewer(palette = "Dark2") +
     labs(x = "Season", y = "Net Ecosystem Exchange", fill = "Time of Day", 
-         title = glue("Total NEE: {value}", value = round(sum(combined$NEE),2)),
-         subtitle = glue("NEE in Winter Season: {winter}; NEE in Growing Season: {gs}",
-                         winter = round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2),
-                         gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2)))
+         title = "Absolute NEE by season and time of day")
   # NEE by JD
   p3 <- combined %>% group_by(JD) %>% summarise(NEE = sum(NEE)) %>% ggplot(aes(x = JD, y = NEE)) + 
     geom_point(color = "orange") + theme_bw() + labs(y = "Net Ecosystem Exchange", x = "Julian Day") + 
     stat_smooth()
   
   plot <- ((p1 + theme(legend.position = "none")) + p2)/p3
+  plot <- plot + plot_annotation(
+    title = glue("Total NEE: {value}", value = round(sum(combined$NEE),2)),
+    subtitle = glue("NEE in Winter Season: {winter}; NEE in Growing Season: {gs}",
+                    winter = round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2),
+                    gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2)),
+    theme = theme(plot.title = element_text(size = 20), plot.subtitle = element_text(size = 18)))
   return(plot)
 }

@@ -50,7 +50,7 @@ navbarPage("Eddy Covariance Lab",
             tabPanel("Regression Model",
               # Regression section
               h3("Building regression model"),
-              regression_ui("reg_select", full_variables[-which(full_variables %in% c("NEE", "season", "timeofday"))])
+              regression_ui("reg_select", full_variables[-which(full_variables %in% c("NEE"))])
             )
           ) # end of tabset panel 
         ) # end of fluid page --------------------------
