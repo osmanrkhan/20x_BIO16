@@ -118,14 +118,8 @@ plot_raw_data_bivariate <- function(input, output, variables, data, season){
                           name = paste0('h = ', round(step/frame, 3)),
                           x=x,
                           y=y)
-      covar <- stats::cov(x = x,y = y, method = "pearson")
-      mod[[step]] <-list(visible = FALSE,
-                         name = paste0('covariance = ', round(covar, 2)),
-                         x=x,
-                         y=fitted(lm(y ~ x)))
     }
     aval[1][[1]]$visible = TRUE
-    mod[1][[1]]$visible = TRUE
     
     # create steps and plot all traces
     steps <- list()
@@ -145,11 +139,6 @@ plot_raw_data_bivariate <- function(input, output, variables, data, season){
       step$args[[2]][i] = TRUE  
       steps[[i]] = step 
     }  
-    for(i in 1:num_frames){
-      fig <- add_lines(fig,x=mod[i][[1]]$x,  y=mod[i][[1]]$y, visible = mod[i][[1]]$visible, 
-                       name = mod[i][[1]]$name, type = 'scattergl', 
-                       line  = list(color = 'firebrick', width = 4), hoverinfo = 'name')
-    }
     
     # add slider control to plot
     fig <- fig %>%
@@ -173,30 +162,15 @@ plot_raw_data_bivariate <- function(input, output, variables, data, season){
     # getting data using pull()
     x <- pull(data,input$pairplot_xvar)
     y <- pull(data, input$pairplot_yvar)
-    mod <- lm(y ~ x) # linear model for trendline
-    covar <-  round(stats::cor(x,y),2)
-    y2 <- c(min(fitted(mod)), max(fitted(mod)))
-    if(covar < 0){
-      y2 <- c(max(fitted(mod)), min(fitted(mod)))
-    }
-    #fig <- plot_ly() %>% 
-    # layout(title = glue("{xvar} vs {yvar}", xvar = form_label_x, yvar = form_label_y), 
-    #           xaxis = list(title = form_label_x), yaxis = list(title = form_label_y)) # getting plot labels
-    # fig <- fig %>% add_markers(x = x, y = y, type = "scattergl", name = "Bivariate", 
-    #                         marker = list(color = "royalblue")) %>% 
-    #add_lines(x = c(min(x),max(x)), y = y2, 
-    #         name = glue("Correlation: {value}", value = covar), 
-    #        line = list(color = "firebrick", width = 4)) 
-    
-    
+  
     # adding the bivariate scatter plot and the trend line  
     if(grepl(season, "summer")){
       pairplot_summer$plot_full_graph <- ggplot(data = data, aes(x = !!sym(input$pairplot_xvar), y = !!sym(input$pairplot_yvar))) + theme_bw() + labs(y = form_label_y, x = form_label_x) +               
-        geom_point(color = "orange", size = 1.5) + stat_smooth()
+        geom_point(color = "orange", size = 1.5) 
     }
     else if(grepl(season, "winter")){
       pairplot_winter$plot_full_graph <- ggplot(data = data, aes(x = !!sym(input$pairplot_xvar), y = !!sym(input$pairplot_yvar))) + theme_bw() + labs(y = form_label_y, x = form_label_x) +               
-        geom_point(color = "orange", size = 1.5) + stat_smooth()
+        geom_point(color = "orange", size = 1.5)
     }
   })
   # render plots
