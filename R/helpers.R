@@ -273,6 +273,9 @@ fit_eval <- function(data, formula){
   return(out)
 }
 
+#' @title This function performs gapfilling and plotting of gapfilling variables  
+#' @param data The data of interest
+#' @param formula The model formula chosen to gapfill  
 gap_filling <- function(data, formula){
   complete_data <- data %>% filter(!is.na(NEE))
   missing_data <- data %>% filter(is.na(NEE))
@@ -280,11 +283,14 @@ gap_filling <- function(data, formula){
   new_NEE <- predict(model, newdata = missing_data %>% select(-NEE))
   missing_data <- missing_data %>% mutate(NEE = new_NEE)
   combined <- rbind(missing_data, complete_data) %>% arrange(date)
-  
+  # conversion step 
+  combined$NEE <- combined$NEE * (1/1000^2) * (12/44) * 60 * 30  
+  neelab <- bquote("NEE"~C~m^-2~yr^-1)
   # boxplot of NEE distribution by day
   p1 <- ggplot(combined, aes(x = season, fill = timeofday, y = NEE )) + 
     geom_boxplot() + theme_bw() + scale_fill_brewer(palette = "Dark2") + 
-    labs(x = "Season", y = "Net Ecosystem Exchange", fill = "Time of Day", title = "Distribution of NEE by season and time of day")
+    labs(x = "Season", y = neelab, fill = "Time of Day", 
+         title = "Distribution of NEE by season and time of day")
   
   # barplot of total NEE
   p2 <- combined %>% group_by(season, timeofday) %>% summarize(NEE = sum(NEE)) %>% 
@@ -292,19 +298,22 @@ gap_filling <- function(data, formula){
     geom_text(aes(label = round(NEE,2), x = season, y = NEE/2), size = 4, position = position_dodge(width = 0.8), 
               vjust = 0, hjust = 0.5) + 
     theme_bw() + scale_fill_brewer(palette = "Dark2") +
-    labs(x = "Season", y = "Net Ecosystem Exchange", fill = "Time of Day", 
+    labs(x = "Season", y = neelab, fill = "Time of Day", 
          title = "Absolute NEE by season and time of day")
   # NEE by JD
   p3 <- combined %>% group_by(JD) %>% summarise(NEE = sum(NEE)) %>% ggplot(aes(x = JD, y = NEE)) + 
-    geom_point(color = "orange") + theme_bw() + labs(y = "Net Ecosystem Exchange", x = "Julian Day") + 
+    geom_point(color = "orange") + theme_bw() + labs(y = neelab, x = "Julian Day") + 
     stat_smooth()
+  
+  total_title <- bquote("Total NEE:"~.(round(sum(combined$NEE),2))~C~m^-2~yr^-1)
+  total_subtitle <- bquote("NEE in Winter Season:"~
+                             .(round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2))~C~m^-2~yr^-1~"; NEE in Growing Season"~
+                             .(gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2))~C~m^-2~yr^-1)
   
   plot <- ((p1 + theme(legend.position = "none")) + p2)/p3
   plot <- plot + plot_annotation(
-    title = glue("Total NEE: {value}", value = round(sum(combined$NEE),2)),
-    subtitle = glue("NEE in Winter Season: {winter}; NEE in Growing Season: {gs}",
-                    winter = round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2),
-                    gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2)),
-    theme = theme(plot.title = element_text(size = 20), plot.subtitle = element_text(size = 18)))
+    title = total_title,
+    subtitle = total_subtitle,
+    theme = theme(plot.title = element_text(size = 18), plot.subtitle = element_text(size = 15)))
   return(plot)
 }
