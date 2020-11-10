@@ -3,7 +3,7 @@
 
 ## App structure
 
-- As with any web package R shiny needs a ui to create the view and a server to handle requests. The ui function is responsible for creating the views for each input (also called widgets) and output. The server app is responsible for building the output objects usually by using the widget values. Basic examples can be found at[Shiny Tutorials](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1) read through lesson 4.
+- As with any web package R shiny needs a ui to create the view and a server to handle requests. The ui function is responsible for creating the views for each input (also called widgets) and output. The server app is responsible for building the output objects usually by using the widget values. Basic examples can be found at [Shiny Tutorials](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1) read through lesson 4.
 - As stated in the design, the website is broken into module to keep the UI and server functions from congesting. So the overarching UI calls the function of each module's ui; the same is true for the server. The server and UI are connected through IDs. Input and output IDs in Shiny apps share a global namespace, meaning, each ID of shiny objects must be unique across the entire app. However, when modularizing the application, shiny gives you the possibility to create a namespace for each module. In consequence, the programmer doesn't have to worry about uniqueness of input/output ids between modules. For more information about modules, please read [shiny module](https://shiny.rstudio.com/articles/modules.html).
 - Helpers.r: This file contains helper functions to the module files and the global variables that is shared by multiple files in the app.
 - It is assumed that the programmer knows the names of each column in the datasets and is able to create a global named list containing the names of the column. All datasets use RDS format.
@@ -71,6 +71,15 @@ bivariate_ui <- function(id, xvar, yvar)
 #' param @data: the data to work with
 
 bivariate_server <- function(id, variables, data)
+
+#' helper function to plot a whole bivariate plot or a bivariate plot animation through time.
+#' param @input: list of input that user has chosen (given to us by shiny).
+#' param @output: list of available ouput action (given to us by shiny).
+#' param @variables: the variables to plot.
+#' param @data: the data to work with.
+#' param @season: which season to graph
+
+plot_raw_data_bivariate <- function(input, output, variables, data, season) #called by bivariate server
 ```
 
 In this module, the bivariate of two variables is plotted using two methods.
@@ -78,7 +87,7 @@ In this module, the bivariate of two variables is plotted using two methods.
 The first method is a simple bivariate plot of two variables.
 In the second method a slider is created to show the bivariate relationship through time (24 hours) for a fixed (user-selected interval). In other words, the data is divided into chunks(or frames) of a fixed, user-selected time interval, then the bivariate relationship for each frame was graphed. Finally, a slider was created to allow the user to switch in between frames. For example, if the interval in 30 minutes, the first frame would graph data from 0:00 - 0:30, the second frame would graph data from 0:30 - 1:00 etc...
 
-The `bivariate_ui` function creates three select inputs ([selectInput](https://shiny.rstudio.com/reference/shiny/1.5.0/selectInput.html) options. Two of these select input allow the user to select the variables to plot, and the last allows the user to choose the time interval for the bivariate plot through time.  Two action buttons ([actionButton()](https://shiny.rstudio.com/reference/shiny/1.5.0/actionButton.html)) are used to let the user choose which graph to plot.
+The `bivariate_ui` function creates three select inputs ([selectInput](https://shiny.rstudio.com/reference/shiny/1.5.0/selectInput.html) options. Two of these select input allow the user to select the variables to plot, and the last allows the user to choose the time interval for the bivariate plot through time.  Two action buttons ([actionButton()](https://shiny.rstudio.com/reference/shiny/1.5.0/actionButton.html)) are used to let the user choose which graph to plot. A navigation panel is used to separate the data for summer from winter. See [navbarPage](https://shiny.rstudio.com/reference/shiny/1.0.5/navbarPage.html).
 
 The `bivariate_server` makes use of the [eventReactive](https://shiny.rstudio.com/reference/shiny/1.5.0/observeEvent.html) option that R shiny provides to observe when the user presses the action buttons.
 
