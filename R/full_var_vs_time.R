@@ -1,5 +1,8 @@
 #' lets the user select the variables to be graphed
 #' param @id: to link ui and server
+#' param @y_variables: y variables to select
+#' param @x_variables: x variables to select
+#' 
 full_time_plot_ui <- function(id, y_variables, x_variables){
   ns <- NS(id)
   tagList(
