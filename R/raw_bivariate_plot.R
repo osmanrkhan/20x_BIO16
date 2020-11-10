@@ -1,5 +1,8 @@
 #' lets the user select the variables to be graphed
 #' param @id: to link input and output
+#' param @xvar: the x variables
+#' param @yvar: the y variables
+#' 
 bivariate_ui <- function(id, xvar, yvar){
   ns <- NS(id)
   tagList(
