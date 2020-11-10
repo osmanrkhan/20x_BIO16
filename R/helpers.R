@@ -231,7 +231,7 @@ gap_filling <- function(data, formula){
     geom_point(color = "orange") + theme_bw() + labs(y = neelab, x = "Julian Day") + 
     stat_smooth()
   
-  total_title <- bquote("Total NEE:"~.(round(sum(combined$NEE),2))~C~m^-2~yr^-1)
+  total_title <- bquote("Total NEE:"~.(round(sum(combined$NEE),2))~g~C~m^-2~yr^-1)
   total_subtitle <- bquote("NEE in Winter Season:"~
                              .(round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2))~g~C~m^-2~yr^-1~"; NEE in Growing Season"~
                              .(gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2))~g~C~m^-2~yr^-1)

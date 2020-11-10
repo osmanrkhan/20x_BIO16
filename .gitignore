@@ -4,6 +4,5 @@
 .Ruserdata
 *.Rproj
 extern/
-docs/
 archive/
 rsconnect/
