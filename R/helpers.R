@@ -259,7 +259,7 @@ gap_filling <- function(data, formula){
   combined <- rbind(missing_data, complete_data) %>% arrange(date)
   # conversion step 
   combined$NEE <- combined$NEE * (1/1000^2) * (12/44) * 60 * 30  
-  neelab <- bquote("NEE"~C~m^-2~yr^-1)
+  neelab <- bquote("NEE"~g~C~m^-2~yr^-1)
   # boxplot of NEE distribution by day
   p1 <- ggplot(combined, aes(x = season, fill = timeofday, y = NEE )) + 
     geom_boxplot() + theme_bw() + scale_fill_brewer(palette = "Dark2") + 
@@ -281,8 +281,8 @@ gap_filling <- function(data, formula){
   
   total_title <- bquote("Total NEE:"~.(round(sum(combined$NEE),2))~C~m^-2~yr^-1)
   total_subtitle <- bquote("NEE in Winter Season:"~
-                             .(round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2))~C~m^-2~yr^-1~"; NEE in Growing Season"~
-                             .(gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2))~C~m^-2~yr^-1)
+                             .(round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2))~g~C~m^-2~yr^-1~"; NEE in Growing Season"~
+                             .(gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2))~g~C~m^-2~yr^-1)
   
   plot <- ((p1 + theme(legend.position = "none")) + p2)/p3
   plot <- plot + plot_annotation(
