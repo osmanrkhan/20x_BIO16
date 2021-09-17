@@ -1,14 +1,7 @@
-library(shiny)
-library(glue)
-library(parsnip)
-library(yardstick)
-library(rsample)
-library(tidyverse)
-library(viridis)
-
 #' Variable selection for regression
 #' @param id Character used to specify namespace \code{shiny::\link[shiny]{NS}}
 #' @return a \code{shiny::\link[shiny]{tagList}} containing ui elements 
+#' @import shiny
 regression_ui <- function(id, variables){
   ns <- NS(id)
   tagList(
@@ -92,7 +85,17 @@ regression_ui <- function(id, variables){
 }
 
 
-
+#' @title Server function for regression module 
+#' @param id Identifier for module, see Shiny Modules documentation
+#' @param data The data being loaded 
+#' @importFrom glue glue
+#' @import shiny
+#' @import ggplot2
+#' @import plotly
+#' @importFrom dplyr pull
+#' @importFrom magrittr %>%
+#' @import viridis
+#' @importFrom ggplot2 ggplot qplot labs stat_smooth scale_color_viridis_d theme_bw  
 regression_server <- function(id, data){
   moduleServer(
     id, 
@@ -106,7 +109,7 @@ regression_server <- function(id, data){
         if (input$poly == 1){
           text <- input$select_var # if no polynomial transformation 
         } else {
-          text <- glue("poly({var},{deg})", var = input$select_var, deg = input$poly) # poly is the command for polynomial
+          text <- glue::glue("poly({var},{deg})", var = input$select_var, deg = input$poly) # poly is the command for polynomial
         }
         
         if (input$interaction == T){
@@ -151,26 +154,31 @@ regression_server <- function(id, data){
       ####----------------------- Bivariate plot -----------------------------------####   
       # plotting a reactive bivariate plot depending on what is interesting 
       plot <- reactive({
-        x <- `^`(pull(data, input$select_var),as.numeric(input$poly))
+        x <- `^`(dplyr::pull(data, input$select_var), as.numeric(input$poly))
         if (input$interaction == T){ # if there are no interaction variables 
           xlab <- strsplit(var(),"*",fixed = T)[[1]][1]
           if (input$interact_var %in% c("season", "timeofday")){
             legend_name <- ifelse(input$interact_var == "season", "Season", "Time of Day")
             # using qplot as it's quicker to do this interactively 
-            plt <- qplot(y = data$NEE, x = x, geom = "jitter", color = factor(pull(data, input$interact_var))) + 
-              theme_bw() + stat_smooth(method = "lm", formula = y ~ x) +
-              labs(y = "NEE", x = xlab, color = legend_name) + scale_color_viridis_d()
+            plt <- ggplot2::qplot(y = data$NEE, x = x, geom = "jitter", 
+                                  color = factor(dplyr::pull(data, input$interact_var))) + 
+              ggplot2::theme_bw() + 
+              ggplot2::stat_smooth(method = "lm", formula = y ~ x) +
+              ggplot2::labs(y = "NEE", x = xlab, color = legend_name) + 
+              ggplot2::scale_color_viridis_d()
           } else {
-            group <- cut(pull(data, input$interact_var), breaks = 3) %>% factor(labels = c("Low", "Medium", "High"))
-            plt <- qplot(y = data$NEE, x = x, geom = "jitter", color = group) + theme_bw() + 
-              stat_smooth(method = "lm", formula = y ~ x) +
-              labs(y = "NEE", x = xlab, color = "Levels of Interaction Values") + 
-              scale_color_viridis_d()
+            group <- cut(dplyr::pull(data, input$interact_var), breaks = 3) %>% factor(labels = c("Low", "Medium", "High"))
+            plt <- ggplot2::qplot(y = data$NEE, x = x, geom = "jitter", color = group) + 
+              ggplot2::theme_bw() + 
+              ggplot2::stat_smooth(method = "lm", formula = y ~ x) +
+              ggplot2::labs(y = "NEE", x = xlab, color = "Levels of Interaction Values") + 
+              ggplot2::scale_color_viridis_d()
           }
         } else {
-          plt <- qplot(y = data$NEE, x = x, geom = "jitter", color = I("steelblue")) + 
-            theme_bw() + stat_smooth(method = "lm", formula = y ~ x) +
-            labs(y = "NEE", x = var()) 
+          plt <- ggplot2::qplot(y = data$NEE, x = x, geom = "jitter", color = I("steelblue")) + 
+            ggplot2::theme_bw() + 
+            ggplot2::stat_smooth(method = "lm", formula = y ~ x) +
+            ggplot2::labs(y = "NEE", x = var()) 
         }
         plt
       })

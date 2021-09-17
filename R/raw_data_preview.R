@@ -1,10 +1,9 @@
-library(shiny)
-
 #' lets the user select the site, season and date of the file
-#' param @id: a string to link input and output
-#' @datasets: a named list of the columns of the data 
-#' @site: a named list of possible sites that the user can choose 
+#' @param id a string to link input and output
+#' @param datasets a named list of the columns of the data 
+#' @param site a named list of possible sites that the user can choose 
 #' @return a taglist of input
+#' @import shiny
 data_preview_var_ui <- function(id, datasets, site){
   ns <- NS(id)
   tagList(
@@ -42,21 +41,21 @@ data_preview_var_ui <- function(id, datasets, site){
   )
 }
 
-#' constructs the path to the file chosen
-#' param @id: to link the input and the output
-#' param @start_path: starting path to be added to the full path
-#' @return the loaded data 
-data_preview_server <- function(id, start_path) {
+#' @title Constructs the path to the file chosen
+#' @param id to link the input and the output
+#' @param start_path starting path to be added to the full path
+#' @return the loaded data
+#' @import shiny 
+#' @importFrom purrr map
+data_preview_server <- function(id) {
   moduleServer(
     id,
     function(input, output, session){
       #finding the path
       data <- reactive({
-         req(input$dataset)
-         path <- glue("{start_path}{site}_{dataset}.rds", start_path = start_path, site = input$site, 
-              dataset = input$dataset)
-         readRDS(path)
-         
+        req(input$dataset)
+        filename <- glue("{site}_{dataset}.rds", site = input$site, dataset = input$dataset)
+        readRDS(file = system.file("data", filename, package = "DIFUSEEddyCovariance")) 
       })
       # Getting head table 
       # TODO: Control number of lines 

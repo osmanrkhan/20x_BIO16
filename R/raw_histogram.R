@@ -1,9 +1,11 @@
 library(shiny)
 
 #' lets the user select the variables to be graphed
-#' param @id: to link input and output
-#' param @variables: a named list of variables to choose from
+#' @param id: to link input and output
+#' @param variables: a named list of variables to choose from
 #' @return a taglist of input function
+#' @import shiny
+#' @import plotly
 histogram_ui <- function(id, variables){
   ns <- NS(id)
   tagList(
@@ -33,10 +35,12 @@ histogram_ui <- function(id, variables){
 }
 
 #' Plot the histogram for the file chosen
-#' @param id: to link the input and the output 
-#' @param variables: the variables to plot -- used to get nice labels on axes
-#' @param data: the data to work with -- usually a reactive object
+#' @param id to link the input and the output 
+#' @param variables the variables to plot -- used to get nice labels on axes
+#' @param data the data to work with -- usually a reactive object
 #' @return a plotly object 
+#' @import shiny
+#' @import plotly
 
 histogram_server <- function(id, variables, data) {
   moduleServer(

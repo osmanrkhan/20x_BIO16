@@ -1,5 +1,3 @@
-library(patchwork)
-
 #' Variables for the raw variables section 
 raw_variables <- list("Vertical Wind Speed" = "w" , 
                   "Horizontal Wind Speed (North)" = "v" , 
@@ -155,23 +153,31 @@ plot_raw_data_bivariate <- function(input, output, variables, data, season){
 #' @param data Data of data.frame format
 #' @param formula Regression formula class
 #' @param split_prop Train-test split. Default 3/4 of the data set will be training 
+#' @importFrom rsample initial_split training testing
+#' @importFrom parsnip linear_reg set_engine fit predict.model_fit
+#' @importFrom magrittr %>%
+#' @importFrom glue glue
+#' @importFrom yardstick rmse_vec rsq_trad_vec
+#' @importFrom ggplot2 ggplot geom_point geom_line geom_ribbon geom_smooth 
 oos_prediction <- function(data, formula, split_prop = 3/4){
-  split <- initial_split(data, prop = split_prop)
-  train <- linear_reg(mode = "regression") %>% set_engine("lm") %>% 
-    fit(data = training(split), formula = formula)
-  estimate <- predict(train, new_data = testing(split), type = "raw")
-  interval <- predict(train, new_data = testing(split), type = "pred_int")
-  truth <- testing(split)$NEE
+  split <- rsample::initial_split(data, prop = split_prop)
+  train <- parsnip::linear_reg(mode = "regression") %>% parsnip::set_engine("lm") %>% 
+    parsnip::fit(data = rsample::training(split), formula = formula)
+  estimate <- parsnip::predict(train, new_data = rsample::testing(split), type = "raw")
+  interval <- parsnip::predict(train, new_data = rsample::testing(split), type = "pred_int")
+  truth <- rsample::testing(split)$NEE
   df <- cbind(estimate, interval, truth)
-  annotation <- glue("RMSE: {rmse_val} \n Predictive R-squared: {rsq_val}", 
-                     rmse_val = round(rmse_vec(truth = df$truth, estimate = df$estimate),2),
-                     rsq_val = round(rsq_trad_vec(truth = df$truth, estimate = df$estimate),3))
-  plot <- ggplot(data = df, aes(x = estimate, y = truth)) + geom_point(col = "steelblue", size = 2) + 
-    geom_line() +
-    geom_ribbon(aes(ymin = .pred_lower, ymax = .pred_upper), alpha = 0.3) + 
-    stat_smooth(method = "lm", formula = y~x) + 
-    labs(x = "Estimate", y = "Truth", title = "Out of Sample Prediction") + 
-    annotate("text", x = min(df$estimate), y = max(df$truth), label = annotation, hjust = 0, size = 5) + theme_bw()
+  annotation <- glue::glue("RMSE: {rmse_val} \n Predictive R-squared: {rsq_val}", 
+                     rmse_val = round(yardstick::rmse_vec(truth = df$truth, estimate = df$estimate),2),
+                     rsq_val = round(yardstick::rsq_trad_vec(truth = df$truth, estimate = df$estimate),3))
+  plot <- ggplot2::ggplot(data = df, aes(x = estimate, y = truth)) + 
+    ggplot2::geom_point(col = "steelblue", size = 2) + 
+    ggplot2::geom_line() +
+    ggplot2::geom_ribbon(aes(ymin = .pred_lower, ymax = .pred_upper), alpha = 0.3) + 
+    ggplot2::stat_smooth(method = "lm", formula = y~x) + 
+    ggplot2::labs(x = "Estimate", y = "Truth", title = "Out of Sample Prediction") + 
+    ggplot2::annotate("text", x = min(df$estimate), y = max(df$truth), label = annotation, hjust = 0, size = 5) + 
+    ggplot2::theme_bw()
   return(plot)
 } 
 
@@ -179,6 +185,7 @@ oos_prediction <- function(data, formula, split_prop = 3/4){
 #' @param data The data as data frame
 #' @param formula Regression formula class 
 #' @return A list of objects including model summary, fitting plots and residuals 
+#'
 fit_eval <- function(data, formula){
   fit <- lm(formula = formula, data = data)
   mod_sum <- summary(fit) 

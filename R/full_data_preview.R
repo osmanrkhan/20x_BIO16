@@ -1,8 +1,7 @@
 #' lets the user select the site, season and date of the file
-#' param @id: a string to link input and output
-#' @datasets: a named list of the columns of the data 
-#' @site: a named list of possible sites that the user can choose 
+#' @param id a string to link input and output
 #' @return a taglist of input
+#' @import shiny
 full_data_preview_ui <- function(id){
   ns <- NS(id)
   tagList(
@@ -32,16 +31,17 @@ full_data_preview_ui <- function(id){
     )
   )
 }
-#' constructs the path to the file chosen
-#' param @id: to link the input and the output
+#' @title Server function for pre-loading data files
+#' @param id to link the input and the output
 #' @return the loaded data 
+#' @import shiny
 full_data_preview_server <- function(id) {
   moduleServer(
     id,
     function(input, output, session){
      
       full_data <- reactive({
-        readRDS(file = "data/processed_data/silas_little_2018.rds")
+        readRDS(file = system.file("data", "silas_little_2018.rds", package = "DIFUSEEddyCovariance"))
       })
       
       # Getting head table 

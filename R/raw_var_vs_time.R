@@ -131,7 +131,6 @@ plot_vvt_ui <- function(id, variables){
   )
 }
 
-
 plot_vvt_server <- function(id, data, varlist){
   moduleServer(
     id,
