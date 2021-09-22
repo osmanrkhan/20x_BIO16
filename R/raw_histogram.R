@@ -43,6 +43,7 @@ histogram_ui <- function(id, variables){
 #' @import plotly
 
 histogram_server <- function(id, variables, data) {
+  season <- NULL
   moduleServer(
     id,
     function(input, output, session){

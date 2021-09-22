@@ -160,11 +160,14 @@ plot_raw_data_bivariate <- function(input, output, variables, data, season){
 #' @importFrom yardstick rmse_vec rsq_trad_vec
 #' @importFrom ggplot2 ggplot geom_point geom_line geom_ribbon geom_smooth 
 oos_prediction <- function(data, formula, split_prop = 3/4){
+  .pred_lower <- NULL
+  .pred_upper <- NULL
+  
   split <- rsample::initial_split(data, prop = split_prop)
   train <- parsnip::linear_reg(mode = "regression") %>% parsnip::set_engine("lm") %>% 
     parsnip::fit(data = rsample::training(split), formula = formula)
-  estimate <- parsnip::predict(train, new_data = rsample::testing(split), type = "raw")
-  interval <- parsnip::predict(train, new_data = rsample::testing(split), type = "pred_int")
+  estimate <- parsnip::predict.model_fit(train, new_data = rsample::testing(split), type = "raw")
+  interval <- parsnip::predict.model_fit(train, new_data = rsample::testing(split), type = "pred_int")
   truth <- rsample::testing(split)$NEE
   df <- cbind(estimate, interval, truth)
   annotation <- glue::glue("RMSE: {rmse_val} \n Predictive R-squared: {rsq_val}", 
@@ -185,37 +188,47 @@ oos_prediction <- function(data, formula, split_prop = 3/4){
 #' @param data The data as data frame
 #' @param formula Regression formula class 
 #' @return A list of objects including model summary, fitting plots and residuals 
-#'
+#' @importFrom stats lm fitted.values AIC resid 
 fit_eval <- function(data, formula){
-  fit <- lm(formula = formula, data = data)
+  fit <- stats::lm(formula = formula, data = data)
   mod_sum <- summary(fit) 
   
   # fitted values plot
-  fitted <- fitted.values(fit)
+  fitted <- stats::fitted.values(fit)
   truth <- data$NEE
   df <- data.frame(fitted = fitted, truth = truth) %>% as.data.frame()
   annotation <- glue("AIC: {aic_val} \n Adj. R-squared: {rsq_val}", 
-                     aic_val = round(AIC(fit),3),
+                     aic_val = round(stats::AIC(fit),3),
                      rsq_val = round(mod_sum$adj.r.squared,3))
   fit_plot <- ggplot(df, aes(x = fitted, y = truth)) + geom_point(col = "steelblue", size = 2) + 
     stat_smooth(method = "lm", formula = y~x) + labs(x = "Estimate", y = "Truth", title = "Fitted values vs. True") +
     annotate("text", x = min(df$fitted), y = max(df$truth), label = annotation, hjust = 0, size = 5) +
     theme_bw()
-  residuals <- resid(fit)
+  residuals <- stats::resid(fit)
   out <- list(summary = mod_sum, fit_plot = fit_plot, residuals = residuals)
   return(out)
 }
 
 #' @title This function performs gapfilling and plotting of gapfilling variables  
 #' @param data The data of interest
-#' @param formula The model formula chosen to gapfill  
+#' @param formula The model formula chosen to gapfill
+#' @importFrom magrittr %>%   
+#' @importFrom dplyr mutate filter arrange group_by summarize
+#' @import patchwork
 gap_filling <- function(data, formula){
-  complete_data <- data %>% filter(!is.na(NEE))
-  missing_data <- data %>% filter(is.na(NEE))
-  model <- lm(formula = formula, data = complete_data)
-  new_NEE <- predict(model, newdata = missing_data %>% select(-NEE))
-  missing_data <- missing_data %>% mutate(NEE = new_NEE)
-  combined <- rbind(missing_data, complete_data) %>% arrange(date)
+  # assigning some variables to NULL to avoid NOTES in R CMD CHECK when using 
+  # metaprograming with dplyr
+  NEE <- NULL
+  season <- NULL
+  timeofday <- NULL 
+  JD <- NULL 
+  
+  complete_data <- data %>% dplyr::filter(!is.na(NEE))
+  missing_data <- data %>% dplyr::filter(is.na(NEE))
+  model <- stats::lm(formula = formula, data = complete_data)
+  new_NEE <- stats::predict(model, newdata = missing_data %>% select(-NEE))
+  missing_data <- missing_data %>% dplyr::mutate(NEE = new_NEE)
+  combined <- rbind(missing_data, complete_data) %>% dplyr::arrange(date)
   # conversion step 
   combined$NEE <- combined$NEE * (1/1000^2) * (12/44) * 60 * 30  
   neelab <- bquote("NEE"~g~C~m^-2~yr^-1)
@@ -226,7 +239,7 @@ gap_filling <- function(data, formula){
          title = "Distribution of NEE by season and time of day")
   
   # barplot of total NEE
-  p2 <- combined %>% group_by(season, timeofday) %>% summarize(NEE = sum(NEE)) %>% 
+  p2 <- combined %>% dplyr::group_by(season, timeofday) %>% dplyr::summarise(NEE = sum(NEE)) %>% 
     ggplot(aes(y = NEE, x = season, fill = timeofday)) + geom_bar(stat = "identity", position = "dodge") +
     geom_text(aes(label = round(NEE,2), x = season, y = NEE/2), size = 4, position = position_dodge(width = 0.8), 
               vjust = 0, hjust = 0.5) + 
@@ -234,17 +247,17 @@ gap_filling <- function(data, formula){
     labs(x = "Season", y = neelab, fill = "Time of Day", 
          title = "Absolute NEE by season and time of day")
   # NEE by JD
-  p3 <- combined %>% group_by(JD) %>% summarise(NEE = sum(NEE)) %>% ggplot(aes(x = JD, y = NEE)) + 
+  p3 <- combined %>% dplyr::group_by(JD) %>% dplyr::summarise(NEE = sum(NEE)) %>% ggplot(aes(x = JD, y = NEE)) + 
     geom_point(color = "orange") + theme_bw() + labs(y = neelab, x = "Julian Day") + 
     stat_smooth()
   
   total_title <- bquote("Total NEE:"~.(round(sum(combined$NEE),2))~g~C~m^-2~yr^-1)
   total_subtitle <- bquote("NEE in Winter Season:"~
-                             .(round(sum(combined %>% filter(season == "W") %>% pull(NEE)),2))~g~C~m^-2~yr^-1~"; NEE in Growing Season"~
-                             .(gs = round(sum(combined %>% filter(season == "GS") %>% pull(NEE)),2))~g~C~m^-2~yr^-1)
+                             .(round(sum(combined %>% dplyr::filter(season == "W") %>% dplyr::pull(NEE)),2))~g~C~m^-2~yr^-1~"; NEE in Growing Season"~
+                             .(gs = round(sum(combined %>% dplyr::filter(season == "GS") %>% dplyr::pull(NEE)),2))~g~C~m^-2~yr^-1)
   
   plot <- ((p1 + theme(legend.position = "none")) + p2)/p3
-  plot <- plot + plot_annotation(
+  plot <- plot + patchwork::plot_annotation(
     title = total_title,
     subtitle = total_subtitle,
     theme = theme(plot.title = element_text(size = 18), plot.subtitle = element_text(size = 15)))

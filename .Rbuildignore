@@ -5,3 +5,9 @@
 ^rsconnect$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^raw_data$/
+^docs$/
+^manifest\.json$
+^data-raw$
+^docs$
+^raw_data$

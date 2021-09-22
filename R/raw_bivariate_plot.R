@@ -1,8 +1,8 @@
-#' lets the user select the variables to be graphed
-#' param @id: to link input and output
-#' param @xvar: the x variables
-#' param @yvar: the y variables
-#' 
+#' @title Lets the user select the variables to be graphed
+#' @param id: to link input and output
+#' @param xvar: the x variables
+#' @param yvar: the y variables
+#' @import shiny
 bivariate_ui <- function(id, xvar, yvar){
   ns <- NS(id)
   tagList(
@@ -71,12 +71,15 @@ bivariate_ui <- function(id, xvar, yvar){
  )
 }
 
-#' either plots a whole bivariate plot or a bivariate plot animation through time.
-#' param @id: to link the input and the output
-#' param @variables: the variables to plot
-#' param @data: the data to work with
+#' @title Either plots a whole bivariate plot or a bivariate plot animation through time.
+#' @param id: to link the input and the output
+#' @param variables: the variables to plot
+#' @param data: the data to work with
+#' @import shiny
+#' @importFrom magrittr %>%
 
 bivariate_server <- function(id, variables, data) {
+  season <- NULL
   moduleServer(
     id,
     function(input, output, session){

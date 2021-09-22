@@ -4,19 +4,29 @@ Version: 0.0.0.9000
 Authors@R: c(
     person(given = "Quang", family = "Nguyen", role = c("aut", "cre"), email = "quangpmnguyen@gmail.com"), 
     person(given = "Pierre", family = "Desvallons", role = "aut"))
-Description: Package for Eddy Covariance Shiny App for DIFUSE 2020
+Description: Package for Eddy Covariance Shiny App for DIFUSE 2020. 
+Depends: R (>= 3.5.0)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.2
 Imports: 
+    config,
     dplyr,
     ggplot2,
+    glue,
     golem,
+    magrittr,
+    parsnip,
     pkgload,
     plotly,
     purrr,
+    rsample,
+    stats,
     shiny,
     tidyr,
-    yardstick
+    viridis,
+    yardstick,
+    utils,
+    patchwork

@@ -35,18 +35,19 @@ full_data_preview_ui <- function(id){
 #' @param id to link the input and the output
 #' @return the loaded data 
 #' @import shiny
+#' @importFrom utils head
 full_data_preview_server <- function(id) {
   moduleServer(
     id,
     function(input, output, session){
      
       full_data <- reactive({
-        readRDS(file = system.file("data", "silas_little_2018.rds", package = "DIFUSEEddyCovariance"))
+        readRDS(file = app_sys("extdata/silas_little_2018.rds"))
       })
       
       # Getting head table 
       output$full_preview <- renderTable({
-        head(full_data(), 10)
+        utils::head(full_data(), 10)
       })
       return (full_data)
     }

@@ -2,16 +2,17 @@
 % Please edit documentation in R/raw_bivariate_plot.R
 \name{bivariate_server}
 \alias{bivariate_server}
-\title{either plots a whole bivariate plot or a bivariate plot animation through time.
-param @id: to link the input and the output
-param @variables: the variables to plot
-param @data: the data to work with}
+\title{Either plots a whole bivariate plot or a bivariate plot animation through time.}
 \usage{
 bivariate_server(id, variables, data)
 }
+\arguments{
+\item{id:}{to link the input and the output}
+
+\item{variables:}{the variables to plot}
+
+\item{data:}{the data to work with}
+}
 \description{
-either plots a whole bivariate plot or a bivariate plot animation through time.
-param @id: to link the input and the output
-param @variables: the variables to plot
-param @data: the data to work with
+Either plots a whole bivariate plot or a bivariate plot animation through time.
 }

@@ -2,16 +2,17 @@
 % Please edit documentation in R/raw_bivariate_plot.R
 \name{bivariate_ui}
 \alias{bivariate_ui}
-\title{lets the user select the variables to be graphed
-param @id: to link input and output
-param @xvar: the x variables
-param @yvar: the y variables}
+\title{Lets the user select the variables to be graphed}
 \usage{
 bivariate_ui(id, xvar, yvar)
 }
+\arguments{
+\item{id:}{to link input and output}
+
+\item{xvar:}{the x variables}
+
+\item{yvar:}{the y variables}
+}
 \description{
-lets the user select the variables to be graphed
-param @id: to link input and output
-param @xvar: the x variables
-param @yvar: the y variables
+Lets the user select the variables to be graphed
 }

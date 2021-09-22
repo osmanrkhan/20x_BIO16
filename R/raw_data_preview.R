@@ -54,13 +54,13 @@ data_preview_server <- function(id) {
       #finding the path
       data <- reactive({
         req(input$dataset)
-        filename <- glue("{site}_{dataset}.rds", site = input$site, dataset = input$dataset)
-        readRDS(file = system.file("data", filename, package = "DIFUSEEddyCovariance")) 
+        filename <- glue("extdata/{site}_{dataset}.rds", site = input$site, dataset = input$dataset)
+        readRDS(file = app_sys(filename)) 
       })
       # Getting head table 
       # TODO: Control number of lines 
       output$preview <- renderTable({
-        head(data(), 20)
+        utils::head(data(), 20)
       })
       return(data)
       #readRDS(file = path())

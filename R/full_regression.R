@@ -96,7 +96,9 @@ regression_ui <- function(id, variables){
 #' @importFrom magrittr %>%
 #' @import viridis
 #' @importFrom ggplot2 ggplot qplot labs stat_smooth scale_color_viridis_d theme_bw  
+#' @importFrom stats reformulate
 regression_server <- function(id, data){
+  NEE <- NULL
   moduleServer(
     id, 
     function(input, output, session){
@@ -142,7 +144,7 @@ regression_server <- function(id, data){
         if(length(reg$term_labels) == 0){
           cat("No terms")
         } else {
-          reformulate(termlabels = reg$term_labels, response = "NEE", intercept = TRUE)
+          stats::reformulate(termlabels = reg$term_labels, response = "NEE", intercept = TRUE)
         }
       })
       

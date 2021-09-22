@@ -131,7 +131,12 @@ plot_vvt_ui <- function(id, variables){
   )
 }
 
+#' @title Server function for variable-versus-time (vvt) plotting 
+#' @param id Identifier to match ui and server
+#' @param data The data required
+#' @param varlist List of variables 
 plot_vvt_server <- function(id, data, varlist){
+  season <- NULL 
   moduleServer(
     id,
     function(input, output, session){
